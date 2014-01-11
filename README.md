@@ -1,0 +1,4 @@
+arctan
+======
+
+Study of arctangent
