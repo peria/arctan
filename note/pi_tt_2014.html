@@ -380,13 +380,17 @@ $ python -c "for n in [57, 239, 682, 12943]: print n*n+1" | factor
 
     <article>
       <h3>Factorization</h3>
-      <p>
-	Multiplication of n-digits numbers costs...
-	<ul>
-	  <li>O(n log(n)) using FFT
-	  <li>O(n), if the numbers are factorized
-	</ul>
-      </p>
+      <h4 class="green">Pros.</h4>
+	    <ul>
+	      <li>Multiplication of n-digits numbers costs O(n)
+        <li>Speeds up reduction of rational numbers.
+        <li>Most operations in BSM is multiplications.
+	    </ul>
+      <h4 class="red">Cons.</h4>
+      <ul>
+        <li>Slow down additions. (Need to expand exponents)
+        <li>Need more implementation. (Human resource)
+      </ul>
     </article>
   </section>
 </body>
