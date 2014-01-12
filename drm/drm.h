@@ -3,11 +3,6 @@
 
 #include <gmp.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-
 #include "base/base.h"
 
 // DRM (Binary splitting method) algorithm to reduce
