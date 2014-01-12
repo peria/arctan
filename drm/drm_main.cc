@@ -2,6 +2,7 @@
 
 #include <gmp.h>
 
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
