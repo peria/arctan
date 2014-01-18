@@ -31,11 +31,14 @@
         'drm2'
       ],
       'sources': [
-        'drm2_main.cc'
+        'drm_main.cc'
       ],
       'libraries': [
         '-lgmp'
-      ]
+      ],
+      'define': {
+        # -DDRM2
+      }
     },
     {
       'target_name': 'drm',
@@ -49,6 +52,16 @@
       'type': 'static_library',
       'sources': [
         'drm2.cc'
+      ],
+      'dependencies': [
+        'number'
+      ]
+    },
+    {
+      'target_name': 'number',
+      'type': 'static_library',
+      'sources': [
+        'number.cc'
       ]
     }
   ]

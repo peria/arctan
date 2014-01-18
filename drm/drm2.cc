@@ -1,32 +1,14 @@
 #include "drm2.h"
 
 #include <gmp.h>
-
 #include <iostream>
-
 #include "base/base.h"
-
-Number_::Number_() {
-  mpz_init(n);
-}
-
-Number_::~Number_() {
-  mpz_clear(n);
-}
-
-void Number::ToMpz(mpz_t m) {
-  //m = n;
-  //for (factors) {
-  //  // compute power in O(log(b)).
-  //  m *= factor.a ^ factor.b;
-  //}
-}
 
 void Drm::Compute(mpz_t p, mpz_t q) {
   Number a, b, c;
   Core(0, n_, a, b, c);
-  // a.ToMpz(q);
-  // b.ToMpz(p);
+  NumberToMpz(a, q);
+  NumberToMpz(b, p);
 }
 
 void Drm::Core(int64 low, int64 up, Number a0, Number b0, Number c0) {
@@ -37,40 +19,37 @@ void Drm::Core(int64 low, int64 up, Number a0, Number b0, Number c0) {
     return;
   }
 
-  mpz_t a1, b1, c1;
-  mpz_inits(a1, b1, c1, NULL);
+  Number a1, b1, c1;
 
   int64 mid = (low + up) / 2;
   Core(low, mid, a0, b0, c0);
   Core(mid, up, a1, b1, c1);
 
-  mpz_mul(b0, b0, a1);  // b0 = b0 * a1
-  mpz_mul(b1, b1, c0);  // b1 = b1 * c0
-  mpz_add(b0, b0, b1);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
-  mpz_mul(a0, a0, a1);  // a0 = a0 * a1
-  mpz_mul(c0, c0, c1);  // c0 = c0 * c1
-
-  mpz_clears(a1, b1, c1, NULL);
+  NumberMul(b0, b0, a1);  // b0 = b0 * a1
+  NumberMul(b1, b1, c0);  // b1 = b1 * c0
+  NumberAdd(b0, b0, b1);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+  NumberMul(a0, a0, a1);  // a0 = a0 * a1
+  NumberMul(c0, c0, c1);  // c0 = c0 * c1
 }
 
-void Drm::SetA(int64 k, mpz_t a) {
+void Drm::SetA(int64 k, Number a) {
   // A_k = (2 * k + 1) * x^2
   if (k == 0) {
-    mpz_set_ui(a, x_);
+    mpz_set_ui(a->n, x_);
   } else {
-    mpz_set_ui(a, 2 * k + 1);
-    mpz_mul_ui(a, a, x_ * x_);
+    mpz_set_ui(a->n, 2 * k + 1);
+    mpz_mul_ui(a->n, a->n, x_ * x_);
   }
 }
 
-void Drm::SetB(int64 k, mpz_t b) {
+void Drm::SetB(int64 k, Number b) {
   // B_k = 1
-  mpz_set_ui(b, 1);
+  mpz_set_ui(b->n, 1);
 }
 
-void Drm::SetC(int64 k, mpz_t c) {
+void Drm::SetC(int64 k, Number c) {
   // C_k = -(2 * k + 1)
-  mpz_set_si(c, - (2 * k + 1));
+  mpz_set_si(c->n, - (2 * k + 1));
 }
 
 namespace {
