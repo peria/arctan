@@ -6,6 +6,10 @@
 
 #include "base/base.h"
 
+Drm::Drm(int64 x, int64 digits)
+  : x_(x),
+    n_(static_cast<int64>(digits / (2 * std::log10(x)))) {}
+
 void Drm::Compute(Integer* p, Integer* q) {
   Integer c;
   Core(0, n_, q, p, &c);
@@ -50,12 +54,13 @@ namespace {
 const Arctan::Term terms[] = {{16, 5}, {-4, 239}};
 }  // namespace
 
-void ComputePi(int64 n, Real* pi) {
-  Real::SetPrecision((n + 10) * std::log2(10.0));
+void ComputePi(int64 digits, Real* pi) {
+  Real::SetPrecision(digits * std::log2(10.0));
   pi->SetValue(0);
+
   for (const Arctan::Term& term : terms) {
     Integer ip, iq;
-    Drm drm(term.quatient, n);
+    Drm drm(term.quatient, digits);
     drm.Compute(&ip, &iq);
     Integer::Mul(ip, term.coef, &ip);
 

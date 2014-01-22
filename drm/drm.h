@@ -12,7 +12,7 @@
 // where A_k, B_k, C_k are set by SetA(k), SetB(k), SetC(k).
 class Drm {
  public:
-  Drm(int64 x, int64 n) : x_(x), n_(n) {}
+  Drm(int64 x, int64 n);
   void Compute(Integer* p, Integer* q);
   void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
 

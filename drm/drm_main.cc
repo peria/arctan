@@ -16,7 +16,7 @@ int main(int argc, const char* argv[]) {
   }
 
   Real pi;
-  ComputePi(digits, &pi);
+  ComputePi(digits + 10, &pi);
   mpf_out_str(stdout, 10, digits, pi.Mpf());
   std::puts("");
 

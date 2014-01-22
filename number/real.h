@@ -14,7 +14,7 @@ class Real {
 
   void SetValue(double r);
 
-  const mpf_t& Mpf() { return r_; }
+  const mpf_t& Mpf() const { return r_; }
 
   // Static methods --------------------------------------------------
 
