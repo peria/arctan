@@ -1,10 +1,10 @@
 {
   'targets': [
     {
-      'target_name': 'drm',
+      'target_name': 'all',
       'type': 'none',
       'dependencies': [
-        'drm/drm.gyp:all'
+        'drm/drm.gyp:drm_all'
       ]
     }
   ]

@@ -6,62 +6,54 @@
 
 #include "base/base.h"
 
-void Drm::Compute(mpz_t p, mpz_t q) {
-  mpz_t c;
-  mpz_init(c);
-  Core(0, n_, q, p, c);
-  mpz_clear(c);
+void Drm::Compute(Integer* p, Integer* q) {
+  Integer c;
+  Core(0, n_, q, p, &c);
 }
 
-void Drm::Core(int64 low, int64 up, mpz_t a0, mpz_t b0, mpz_t c0) {
+void Drm::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
   if (low == up - 1) {
-    SetA(low, a0);
-    SetB(low, b0);
-    SetC(low, c0);
+    SetValues(low, a0, b0, c0);
     return;
   }
 
-  mpz_t a1, b1, c1;
-  mpz_inits(a1, b1, c1, NULL);
+  Integer ta, tb, tc;
+  Integer *a1 = &ta;
+  Integer *b1 = &tb;
+  Integer *c1 = &tc;
 
   int64 mid = (low + up) / 2;
   Core(low, mid, a0, b0, c0);
   Core(mid, up, a1, b1, c1);
 
-  mpz_mul(b0, b0, a1);  // b0 = b0 * a1
-  mpz_mul(b1, b1, c0);  // b1 = b1 * c0
-  mpz_add(b0, b0, b1);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
-  mpz_mul(a0, a0, a1);  // a0 = a0 * a1
-  mpz_mul(c0, c0, c1);  // c0 = c0 * c1
-
-  mpz_clears(a1, b1, c1, NULL);
+  Integer::Mul(a1, b0, b0);  // b0 = a1 * b0
+  Integer::Mul(b1, c0, b1);  // b1 = b1 * c0
+  Integer::Add(b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+  Integer::Mul(a0, a1, a0);  // a0 = a0 * a1
+  Integer::Mul(c0, c1, c0);  // c0 = c0 * c1
 }
 
-void Drm::SetA(int64 k, mpz_t a) {
+void Drm::SetValues(int64 k, Integer* a, Integer* b, Integer* c) {
   // A_k = (2 * k + 1) * x^2
   if (k == 0) {
-    mpz_set_ui(a, x_);
+    mpz_set_ui(a->n, x_);
   } else {
-    mpz_set_ui(a, 2 * k + 1);
-    mpz_mul_ui(a, a, x_ * x_);
+    mpz_set_ui(a->n, 2 * k + 1);
+    mpz_mul_ui(a->n, a->n, x_ * x_);
   }
-}
 
-void Drm::SetB(int64 k, mpz_t b) {
   // B_k = 1
-  mpz_set_ui(b, 1);
-}
+  mpz_set_ui(b->n, 1);
 
-void Drm::SetC(int64 k, mpz_t c) {
   // C_k = -(2 * k + 1)
-  mpz_set_si(c, - (2 * k + 1));
+  mpz_set_si(c->n, - (2 * k + 1));
 }
 
 namespace {
 const Arctan::Term terms[] = {{16, 5}, {-4, 239}};
 }  // namespace
 
-void Arctan::ComputePi(mpf_t pi, int64 n) {
+void ComputePi(int64 n, Real* pi) {
   mpf_set_si(pi, 0);
   for (const Term& term : terms) {
     mpz_t ip, iq;

@@ -1,9 +1,9 @@
 #ifndef DRM_DRM_H_
 #define DRM_DRM_H_
 
-#include <gmp.h>
-
 #include "base/base.h"
+#include "number/integer.h"
+#include "number/real.h"
 
 // DRM (Binary splitting method) algorithm to reduce
 //   1 /      C_0/      C_1/   /          C_{n-2}/       \   \\\      P
@@ -13,13 +13,11 @@
 class Drm {
  public:
   Drm(int64 x, int64 n) : x_(x), n_(n) {}
-  void Compute(mpz_t p, mpz_t q);
-  void Core(int64 low, int64 up, mpz_t a, mpz_t b, mpz_t c);
+  void Compute(Integer* p, Integer* q);
+  void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
 
  private:
-  void SetA(int64 k, mpz_t a);
-  void SetB(int64 k, mpz_t b);
-  void SetC(int64 k, mpz_t c);
+  void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
 
   int64 x_;
   int64 n_;
@@ -27,11 +25,13 @@ class Drm {
 
 class Arctan {
  public:
-  static void ComputePi(mpf_t pi, int64 n);
   struct Term {
     int64 coef;
     int64 quatient;
   };
 };
+
+// Compute \pi for |digits| decimal digits.
+static void ComputePi(int64 digits, Real* pi);
 
 #endif  // DRM_DRM_H_
