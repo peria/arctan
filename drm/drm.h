@@ -32,6 +32,6 @@ class Arctan {
 };
 
 // Compute \pi for |digits| decimal digits.
-static void ComputePi(int64 digits, Real* pi);
+void ComputePi(int64 digits, Real* pi);
 
 #endif  // DRM_DRM_H_

@@ -4,10 +4,11 @@
   ],
   'targets': [
     {
-      'target_name': 'integer',
+      'target_name': 'number',
       'type': 'static_library',
       'sources': [
-        'integer.cc'
+        'integer.cc',
+        'real.cc',
       ]
     }
   ]

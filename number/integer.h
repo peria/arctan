@@ -10,11 +10,18 @@ class Integer {
   Integer();
   ~Integer();
 
+  void SetValue(int64 n);
+
+  const mpz_t& Mpz() const { return n_; }
+
+  // Static methods --------------------------------------------------
+
   // Computes (*c) = a + b.
   static void Add(const Integer& a, const Integer& b, Integer* c);
 
   // Computes (*c) = a * b.
   static void Mul(const Integer& a, const Integer& b, Integer* c);
+  static void Mul(const Integer& a, const int64 b, Integer* c);
 
  private:
   mpz_t n_;

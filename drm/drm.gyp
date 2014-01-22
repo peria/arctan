@@ -15,7 +15,7 @@
       'type': 'executable',
       'dependencies': [
         'drm',
-        '../number/number.gyp:integer'
+        '../number/number.gyp:number'
       ],
       'sources': [
         'drm_main.cc'
@@ -31,7 +31,7 @@
         'drm.cc'
       ],
       'dependencies': [
-        '../number/number.gyp:integer'
+        '../number/number.gyp:number'
       ]
     }
   ]
