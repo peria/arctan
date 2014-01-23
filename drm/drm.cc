@@ -2,6 +2,7 @@
 
 #include <gmp.h>
 
+#include <cstdio>
 #include <cmath>
 
 #include "base/base.h"
@@ -55,9 +56,7 @@ const Arctan::Term terms[] = {{16, 5}, {-4, 239}};
 }  // namespace
 
 void ComputePi(int64 digits, Real* pi) {
-  Real::SetPrecision(digits * std::log2(10.0));
   pi->SetValue(0);
-
   for (const Arctan::Term& term : terms) {
     Integer ip, iq;
     Drm drm(term.quatient, digits);

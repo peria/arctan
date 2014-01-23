@@ -24,5 +24,5 @@ void Integer::Mul(const Integer& a, const Integer& b, Integer* c) {
 }
 
 void Integer::Mul(const Integer& a, const int64 b, Integer* c) {
-  mpz_mul_ui(c->n_, a.n_, b);
+  mpz_mul_si(c->n_, a.n_, b);
 }
