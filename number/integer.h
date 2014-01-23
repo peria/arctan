@@ -1,7 +1,8 @@
-#ifndef DRM_NUMBER_INTEGER_H_
-#define DRM_NUMBER_INTEGER_H_
+#ifndef PI_NUMBER_INTEGER_H_
+#define PI_NUMBER_INTEGER_H_
 
 #include <gmp.h>
+
 #include "base/base.h"
 
 // Integer class stores an integer in long precision.
@@ -23,8 +24,11 @@ class Integer {
   static void Mul(const Integer& a, const Integer& b, Integer* c);
   static void Mul(const Integer& a, const int64 b, Integer* c);
 
+  // Computes (*c) = a ^ b.
+  static void Power(const int64 a, const int64 b, Integer* c);
+
  private:
   mpz_t n_;
 };
 
-#endif  // DRM_NUMBER_INTEGER_H_
+#endif  // PI_NUMBER_INTEGER_H_

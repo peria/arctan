@@ -33,6 +33,16 @@
       'dependencies': [
         '../number/number.gyp:number'
       ]
+    },
+    {
+      'target_name': 'drm2',
+      'type': 'static_library',
+      'sources': [
+        'drm2.cc'
+      ],
+      'dependencies': [
+        '../number/number.gyp:number'
+      ]
     }
   ]
 }

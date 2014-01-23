@@ -1,32 +1,40 @@
-#ifndef DRM_NUMBER_H_
-#define DRM_NUMBER_H_
+#ifndef PI_NUMBER_FACTORED_INTEGER_H_
+#define PI_NUMBER_FACTORED_INTEGER_H_
 
-#include <gmp.h>
 #include <vector>
+
 #include "base/base.h"
+#include "number/integer.h"
 
 typedef std::pair<int, int> Factor;
 
-// Number (Number_) class stores a number in following format.
-//   n * \prod_i factor[i].first ^ factor[i].second
-// where |n| is not smooth on factors.
-struct Number_ {
+// FactoredInteger class stores a number in following format.
+//   n_ * \prod_i factor[i].first ^ factor[i].second
+// where |n_| is not smooth on factors.
+class FactoredInteger {
  public:
-  Number_();
-  ~Number_();
-  mpz_t n;
-  std::vector<Factor> factors;
+  FactoredInteger();
+  ~FactoredInteger();
+
+  void SetValue(int64 n);
+
+  Integer ToInteger() const;
+
+  // Static methods --------------------------------------------------
+
+  // Computes (*c) = a + b.
+  static void Add(const FactoredInteger& a,
+                  const FactoredInteger& b,
+                  Integer* c);
+
+  // Computes c = a * b.
+  static void Mul(const FactoredInteger& a,
+                  const FactoredInteger& b,
+                  FactoredInteger* c);
+
+ private:
+  Integer n_;
+  std::vector<Factor> factors_;
 };
 
-typedef Number_ Number[1];
-
-// Converts a Number class to mpz_t.
-void NumberToMpz(Number n, mpz_t m);
-
-// Computes c = a + b.
-void NumberAdd(Number a, Number b, Number c);
-
-// Computes c = a * b.
-void NumberMul(Number a, Number b, Number c);
-
-#endif  // DRM_NUMBER_H_
+#endif  // PI_NUMBER_FACTORED_INTEGER_H_
