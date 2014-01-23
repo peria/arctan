@@ -50,21 +50,3 @@ void Drm::SetValues(int64 k, Integer* a, Integer* b, Integer* c) {
   // C_k = -(2 * k + 1)
   c->SetValue(-(2 * k + 1));
 }
-
-namespace {
-const Arctan::Term terms[] = {{16, 5}, {-4, 239}};
-}  // namespace
-
-void ComputePi(int64 digits, Real* pi) {
-  pi->SetValue(0);
-  for (const Arctan::Term& term : terms) {
-    Integer ip, iq;
-    Drm drm(term.quatient, digits);
-    drm.Compute(&ip, &iq);
-    Integer::Mul(ip, term.coef, &ip);
-
-    Real fp(ip), fq(iq);
-    Real::Div(fp, fq, &fp);  // fp = fp / fq
-    Real::Add(*pi, fp, pi);  // pi = pi + fp
-  }
-}
