@@ -7,7 +7,8 @@
       'target_name': 'drm_all',
       'type': 'none',
       'dependencies': [
-        'drm_main'
+        'drm_main',
+        'drm2_main'
       ]
     },
     {
@@ -19,6 +20,20 @@
       ],
       'sources': [
         'drm_main.cc'
+      ],
+      'libraries': [
+        '-lgmp'
+      ]
+    },
+    {
+      'target_name': 'drm2_main',
+      'type': 'executable',
+      'dependencies': [
+        'drm2',
+        '../number/number.gyp:number'
+      ],
+      'sources': [
+        'drm2_main.cc'
       ],
       'libraries': [
         '-lgmp'

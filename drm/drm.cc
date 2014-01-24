@@ -1,7 +1,5 @@
 #include "drm.h"
 
-#include <gmp.h>
-
 #include <cstdio>
 #include <cmath>
 
