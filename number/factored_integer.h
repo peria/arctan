@@ -19,6 +19,7 @@ class FactoredInteger {
   void SetValue(int64 n);
 
   Integer ToInteger() const;
+  void ToInteger(Integer*);
 
   // Static methods --------------------------------------------------
 
