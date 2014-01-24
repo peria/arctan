@@ -3,7 +3,6 @@
 
 #include "base/base.h"
 #include "number/integer.h"
-#include "number/real.h"
 
 // DRM (Binary splitting method) algorithm to reduce
 //   1 /      C_0/      C_1/   /          C_{n-2}/       \   \\\      P
@@ -22,16 +21,5 @@ class Drm {
   int64 x_;
   int64 n_;
 };
-
-class Arctan {
- public:
-  struct Term {
-    int64 coef;
-    int64 quatient;
-  };
-};
-
-// Compute \pi for |digits| decimal digits.
-void ComputePi(int64 digits, Real* pi);
 
 #endif  // DRM_DRM_H_
