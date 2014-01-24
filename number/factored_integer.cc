@@ -1,5 +1,6 @@
 #include "number/factored_integer.h"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
@@ -50,10 +51,44 @@ void FactoredInteger::ToInteger(Integer* n) {
 }
 
 void FactoredInteger::Add(const FactoredInteger& a,
-         const FactoredInteger& b,
-         FactoredInteger* c) {
-  // TODO(peria): Impelement.
-  assert(false);
+                          const FactoredInteger& b,
+                          FactoredInteger* c) {
+  FactoredInteger dst;
+
+  Integer an(a.n_), bn(b.n_), powers;
+  std::vector<Factor>::const_iterator ia = a.factors_.begin();
+  std::vector<Factor>::const_iterator ib = b.factors_.begin();
+  while (ia != a.factors_.end() && ib != b.factors_.end()) {
+    if (ia->first < ib->first) {
+      Integer::Power(ia->first, ia->second, &powers);
+      Integer::Mul(an, powers, &an);
+      ++ia;
+      continue;
+    }
+    if (ib->first < ia->first) {
+      Integer::Power(ib->first, ib->second, &powers);
+      Integer::Mul(bn, powers, &bn);
+      ++ib;
+      continue;
+    }
+
+    // ia->first == ib->first
+    int ex = std::min(ia->second, ib->second);
+    dst.factors_.push_back(Factor(ia->first, ex));
+    if (ia->second > ex) {
+      Integer::Power(ia->first, ia->second - ex, &powers);
+      Integer::Mul(an, powers, &an);
+    }
+    if (ib->second > ex) {
+      Integer::Power(ib->first, ib->second - ex, &powers);
+      Integer::Mul(bn, powers, &bn);
+    }
+    ++ia;
+    ++ib;
+  }
+  Integer::Add(an, bn, &dst.n_);
+
+  // TODO(peria): Factorize |dst.n_| again.
 }
 
 void FactoredInteger::Add(const FactoredInteger& a,
