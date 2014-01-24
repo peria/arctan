@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "base/base.h"
+#include "number/integer.h"
 
 Drm::Drm(int64 x, int64 digits)
   : x_(x),

@@ -2,7 +2,8 @@
 #define DRM_DRM_H_
 
 #include "base/base.h"
-#include "number/integer.h"
+
+class Integer;
 
 // DRM (Binary splitting method) algorithm to reduce
 //   1 /      C_0/      C_1/   /          C_{n-2}/       \   \\\      P
