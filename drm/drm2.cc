@@ -1,5 +1,7 @@
 #include "drm/drm2.h"
 
+#include <cmath>
+
 #include "base/base.h"
 #include "number/factored_integer.h"
 #include "number/integer.h"

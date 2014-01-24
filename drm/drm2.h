@@ -18,13 +18,14 @@ class FactoredInteger;
 // factored number.
 class Drm2 {
  public:
-  Drm2(int64 x, int64 n) : x_(x), n_(n) {}
+  Drm2(int64 x, int64 n);
   void Compute(Integer* p, Integer* q);
   void Core(int64 low, int64 up, FactoredInteger* a, FactoredInteger* b,
             FactoredInteger* c);
 
  private:
-  void SetValues(int64 k, FactoredInteger* a);
+  void SetValues(int64 k, FactoredInteger* a, FactoredInteger* b,
+                 FactoredInteger* c);
 
   int64 x_;
   int64 n_;

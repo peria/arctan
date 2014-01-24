@@ -1,6 +1,8 @@
 #include "number/factored_integer.h"
 
+#include <cassert>
 #include <vector>
+
 #include "base/base.h"
 #include "number/integer.h"
 
@@ -38,6 +40,22 @@ Integer FactoredInteger::ToInteger() const {
   return n;
 }
 
+void FactoredInteger::ToInteger(Integer* n) {
+  *n = n_;
+  for (const Factor factor : factors_) {
+    Integer powers;
+    Integer::Power(factor.first, factor.second, &powers);
+    Integer::Mul(*n, powers, n);
+  }
+}
+
+void FactoredInteger::Add(const FactoredInteger& a,
+         const FactoredInteger& b,
+         FactoredInteger* c) {
+  // TODO(peria): Impelement.
+  assert(false);
+}
+
 void FactoredInteger::Add(const FactoredInteger& a,
                           const FactoredInteger& b,
                           Integer* c) {
@@ -73,4 +91,11 @@ void FactoredInteger::Mul(const FactoredInteger& a,
 
   // TODO(peria): Remove this copy if |c| is independent from |a| and |b|.
   *c = dst;
+}
+
+void FactoredInteger::Mul(const FactoredInteger& a,
+                          const int64 b,
+                          FactoredInteger* c) {
+  // TODO(peria): Impelement.
+  assert(false);
 }

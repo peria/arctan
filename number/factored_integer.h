@@ -19,11 +19,14 @@ class FactoredInteger {
   void SetValue(int64 n);
 
   Integer ToInteger() const;
-  void ToInteger(Integer*);
+  void ToInteger(Integer* n);
 
   // Static methods --------------------------------------------------
 
   // Computes (*c) = a + b.
+  static void Add(const FactoredInteger& a,
+                  const FactoredInteger& b,
+                  FactoredInteger* c);
   static void Add(const FactoredInteger& a,
                   const FactoredInteger& b,
                   Integer* c);
@@ -31,6 +34,9 @@ class FactoredInteger {
   // Computes c = a * b.
   static void Mul(const FactoredInteger& a,
                   const FactoredInteger& b,
+                  FactoredInteger* c);
+  static void Mul(const FactoredInteger& a,
+                  const int64 b,
                   FactoredInteger* c);
 
  private:
