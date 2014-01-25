@@ -9,6 +9,7 @@
 class Integer {
  public:
   Integer();
+  Integer(const Integer& n);
   ~Integer();
 
   void SetValue(int64 n);
@@ -33,6 +34,8 @@ class Integer {
 
   // Computes (*c) = a ^ b.
   static void Power(const int64 a, const int64 b, Integer* c);
+
+  static void Print(const Integer& n);
 
  private:
   mpz_t n_;

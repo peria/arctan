@@ -8,6 +8,10 @@ Integer::Integer() {
   mpz_init(n_);
 }
 
+Integer::Integer(const Integer& n) {
+  mpz_init_set(n_, n.n_);
+}
+
 Integer::~Integer() {
   mpz_clear(n_);
 }
@@ -42,4 +46,8 @@ void Integer::Div(const Integer& a, const int64 b, Integer* c) {
 
 void Integer::Power(const int64 a, const int64 b, Integer* c) {
   mpz_ui_pow_ui(c->n_, a, b);
+}
+
+void Integer::Print(const Integer& n) {
+  mpz_out_str(stderr, 10, n.n_);
 }

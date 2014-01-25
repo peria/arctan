@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 #include "base/base.h"
@@ -31,7 +32,6 @@ void FactoredInteger::SetValue(int64 n) {
   n_.SetValue(n);
 }
 
-
 void FactoredInteger::Normalize() {
   Iterator it = factors_.begin();
 
@@ -45,7 +45,13 @@ void FactoredInteger::Normalize() {
 
     // Add/append exponent of p.
     for (; it != factors_.end() && it->first < p; ++it) {}
-    if (it->first == p)
+    if (it == factors_.end()) {
+      factors_.push_back(Factor(p, ex));
+      it = factors_.end();
+      continue;
+    }
+
+    if (it != factors_.end() && it->first == p)
       it->second += ex;
     else
       it = factors_.insert(it, Factor(p, ex));
@@ -64,7 +70,7 @@ Integer FactoredInteger::ToInteger() const {
 }
 
 void FactoredInteger::ToInteger(Integer* n) {
-  *n = n_;
+  n->CopyFrom(n_);
   for (const Factor factor : factors_) {
     Integer powers;
     Integer::Power(factor.first, factor.second, &powers);
@@ -77,9 +83,10 @@ void FactoredInteger::Add(const FactoredInteger& a,
                           FactoredInteger* c) {
   FactoredInteger dst;
 
-  Integer an(a.n_), bn(b.n_), powers;
+  // Compute GCD to store in factors_.
   ConstIterator ia = a.factors_.begin();
   ConstIterator ib = b.factors_.begin();
+  Integer an(a.n_), bn(b.n_), powers;
   while (ia != a.factors_.end() && ib != b.factors_.end()) {
     if (ia->first < ib->first) {
       Integer::Power(ia->first, ia->second, &powers);
@@ -108,6 +115,16 @@ void FactoredInteger::Add(const FactoredInteger& a,
     ++ia;
     ++ib;
   }
+  // Compute an and bn with remained factors.
+  for (; ia != a.factors_.end(); ++ia) {
+    Integer::Power(ia->first, ia->second, &powers);
+    Integer::Mul(an, powers, &an);
+  }
+  for (; ib != b.factors_.end(); ++ib) {
+    Integer::Power(ib->first, ib->second, &powers);
+    Integer::Mul(bn, powers, &bn);
+  }
+
   Integer::Add(an, bn, &dst.n_);
   dst.Normalize();
 
@@ -146,6 +163,8 @@ void FactoredInteger::Mul(const FactoredInteger& a,
     }
     // ia->first == ib->first
     dst.factors_.push_back(Factor(ia->first, ia->second + ib->second));
+    ++ia;
+    ++ib;
   }
   for (; ia != a.factors_.end(); ++ia)
     dst.factors_.push_back(*ia);
@@ -159,8 +178,6 @@ void FactoredInteger::Mul(const FactoredInteger& a,
 void FactoredInteger::Mul(const FactoredInteger& a,
                           const int64 b,
                           FactoredInteger* c) {
-  // TODO(peria): Speed up.
-  FactoredInteger n;
-  n.SetValue(b);
-  Mul(a, n, c);
+  Integer::Mul(a.n_, b, &(c->n_));
+  c->Normalize();
 }
