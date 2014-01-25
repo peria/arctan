@@ -31,6 +31,28 @@ void FactoredInteger::SetValue(int64 n) {
   n_.SetValue(n);
 }
 
+
+void FactoredInteger::Normalize() {
+  Iterator it = factors_.begin();
+
+  // Prime factorization using primes up to |kMaxPrime|.
+  for (int p = 2; p < kMaxPrime; ++p) {
+    int ex = 0;
+    for (; Integer::Remain(n_, p) == 0; Integer::Div(n_, p, &n_))
+      ++ex;
+    if (ex == 0)
+      continue;
+
+    // Add/append exponent of p.
+    for (; it != factors_.end() && it->first < p; ++it) {}
+    if (it->first == p)
+      it->second += ex;
+    else
+      it = factors_.insert(it, Factor(p, ex));
+    ++it;
+  }
+}
+
 Integer FactoredInteger::ToInteger() const {
   Integer n(n_);
   for (const Factor factor : factors_) {
@@ -56,8 +78,8 @@ void FactoredInteger::Add(const FactoredInteger& a,
   FactoredInteger dst;
 
   Integer an(a.n_), bn(b.n_), powers;
-  std::vector<Factor>::const_iterator ia = a.factors_.begin();
-  std::vector<Factor>::const_iterator ib = b.factors_.begin();
+  ConstIterator ia = a.factors_.begin();
+  ConstIterator ib = b.factors_.begin();
   while (ia != a.factors_.end() && ib != b.factors_.end()) {
     if (ia->first < ib->first) {
       Integer::Power(ia->first, ia->second, &powers);
@@ -87,8 +109,14 @@ void FactoredInteger::Add(const FactoredInteger& a,
     ++ib;
   }
   Integer::Add(an, bn, &dst.n_);
+  dst.Normalize();
 
-  // TODO(peria): Factorize |dst.n_| again.
+  c->CopyFrom(dst);
+}
+
+void FactoredInteger::CopyFrom(const FactoredInteger& m) {
+  n_.CopyFrom(m.n_);
+  factors_ = m.factors_;
 }
 
 void FactoredInteger::Add(const FactoredInteger& a,
@@ -103,8 +131,8 @@ void FactoredInteger::Mul(const FactoredInteger& a,
   FactoredInteger dst;
   Integer::Mul(a.n_, b.n_, &(dst.n_));
 
-  std::vector<Factor>::const_iterator ia = a.factors_.begin();
-  std::vector<Factor>::const_iterator ib = b.factors_.begin();
+  ConstIterator ia = a.factors_.begin();
+  ConstIterator ib = b.factors_.begin();
   while (ia != a.factors_.end() && ib != b.factors_.end()) {
     if (ia->first < ib->first) {
       dst.factors_.push_back(*ia);
@@ -125,12 +153,14 @@ void FactoredInteger::Mul(const FactoredInteger& a,
     dst.factors_.push_back(*ib);
 
   // TODO(peria): Remove this copy if |c| is independent from |a| and |b|.
-  *c = dst;
+  c->CopyFrom(dst);
 }
 
 void FactoredInteger::Mul(const FactoredInteger& a,
                           const int64 b,
                           FactoredInteger* c) {
-  // TODO(peria): Impelement.
-  assert(false);
+  // TODO(peria): Speed up.
+  FactoredInteger n;
+  n.SetValue(b);
+  Mul(a, n, c);
 }

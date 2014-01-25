@@ -20,6 +20,7 @@ class FactoredInteger {
 
   Integer ToInteger() const;
   void ToInteger(Integer* n);
+  void CopyFrom(const FactoredInteger& m);
 
   // Static methods --------------------------------------------------
 
@@ -40,6 +41,12 @@ class FactoredInteger {
                   FactoredInteger* c);
 
  private:
+  typedef std::vector<Factor>::iterator Iterator;
+  typedef std::vector<Factor>::const_iterator ConstIterator;
+
+  // Factorize |n_| and make it smooth.
+  void Normalize();
+
   Integer n_;
   std::vector<Factor> factors_;
 };

@@ -12,6 +12,7 @@ class Integer {
   ~Integer();
 
   void SetValue(int64 n);
+  void CopyFrom(const Integer& n);
 
   const mpz_t& Mpz() const { return n_; }
 
@@ -23,6 +24,12 @@ class Integer {
   // Computes (*c) = a * b.
   static void Mul(const Integer& a, const Integer& b, Integer* c);
   static void Mul(const Integer& a, const int64 b, Integer* c);
+
+  // Returns a remainder of a / b.
+  static int64 Remain(const Integer& a, const int64 b);
+
+  // Computes (*c) = a / b.
+  static void Div(const Integer& a, const int64 b, Integer* c);
 
   // Computes (*c) = a ^ b.
   static void Power(const int64 a, const int64 b, Integer* c);

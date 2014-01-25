@@ -16,6 +16,10 @@ void Integer::SetValue(int64 n) {
   mpz_set_si(n_, n);
 }
 
+void Integer::CopyFrom(const Integer& n) {
+  mpz_set(n_, n.n_);
+}
+
 void Integer::Add(const Integer& a, const Integer& b, Integer* c) {
   mpz_add(c->n_, a.n_, b.n_);
 }
@@ -26,6 +30,14 @@ void Integer::Mul(const Integer& a, const Integer& b, Integer* c) {
 
 void Integer::Mul(const Integer& a, const int64 b, Integer* c) {
   mpz_mul_si(c->n_, a.n_, b);
+}
+
+int64 Integer::Remain(const Integer& a, const int64 b) {
+  return mpz_fdiv_ui(a.n_, b);
+}
+
+void Integer::Div(const Integer& a, const int64 b, Integer* c) {
+  mpz_fdiv_q_ui(c->n_, a.n_, b);
 }
 
 void Integer::Power(const int64 a, const int64 b, Integer* c) {
