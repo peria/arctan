@@ -31,9 +31,9 @@ void Drm3::Core(int64 low, int64 up, FactoredInteger* a0, Integer* b0,
   Core(low, mid, a0, b0, c0);
   Core(mid, up, &a1, &b1, &c1);
 
-  FactoredInteger::Mul(a1, *b0, b0);  // b0 = a1 * b0
-  FactoredInteger::Mul(b1, *c0, &b1); // b1 = b1 * c0
-  FactoredInteger::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+  Integer::Mul(a1.ToInteger(), *b0, b0);  // b0 = a1 * b0
+  Integer::Mul(b1, c0->ToInteger(), &b1); // b1 = b1 * c0
+  Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
   FactoredInteger::Mul(*a0, a1, a0);  // a0 = a0 * a1
   FactoredInteger::Mul(*c0, c1, c0);  // c0 = c0 * c1
 }

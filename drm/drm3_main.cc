@@ -1,4 +1,4 @@
-#include "drm/drm2.h"
+#include "drm/drm3.h"
 
 #include <gmp.h>
 
@@ -25,7 +25,7 @@ void ComputePi(int64 digits, Real* pi) {
   for (const Term& term : terms) {
     Integer ip, iq;
     clock_t start = clock();
-    Drm2 drm(term.quatient, digits);
+    Drm3 drm(term.quatient, digits);
     drm.Compute(&ip, &iq);
     Integer::Mul(ip, term.coef, &ip);
 
