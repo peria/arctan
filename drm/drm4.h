@@ -18,13 +18,21 @@ class Drm4 {
   Drm4(int64 x, int64 n);
   void Compute(Integer* p, Integer* q);
 
+  static void Init();
+
  private:
+  // Similar to usual DRM algorithm.  Unit of divisions is kDivision.
   void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
-  void DivisionCore(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
+
+  // Apply DRM on a tournament of 2^k terms.
+  void DivisionCore(int64 low, int64 up, int level,
+                    Integer* a, Integer* b, Integer* c);
+
   void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
 
-  int64 x_;
-  int64 n_;
+  int64 x_;  // Quotient of the argument of arctan.
+  int64 n_;  // Required number of terms.
+  int64 m_;  // The number of divisions.  m_ - 1 <= n_ / 2^K < m_
 };
 
 #endif  // DRM_DRM_H_

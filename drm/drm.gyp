@@ -9,7 +9,8 @@
       'dependencies': [
         'drm_main',
         'drm2_main',
-        'drm3_main'
+        'drm3_main',
+        'drm4_main'
       ]
     },
     {
@@ -55,6 +56,20 @@
       ]
     },
     {
+      'target_name': 'drm4_main',
+      'type': 'executable',
+      'dependencies': [
+        'drm4',
+        '../number/number.gyp:number'
+      ],
+      'sources': [
+        'drm4_main.cc'
+      ],
+      'libraries': [
+        '-lgmp'
+      ]
+    },
+    {
       'target_name': 'drm',
       'type': 'static_library',
       'sources': [
@@ -79,6 +94,16 @@
       'type': 'static_library',
       'sources': [
         'drm3.cc'
+      ],
+      'dependencies': [
+        '../number/number.gyp:number'
+      ]
+    },
+    {
+      'target_name': 'drm4',
+      'type': 'static_library',
+      'sources': [
+        'drm4.cc'
       ],
       'dependencies': [
         '../number/number.gyp:number'
