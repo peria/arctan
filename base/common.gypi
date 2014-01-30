@@ -9,7 +9,7 @@
 
     'configurations': {
       'Debug': {
-        'cflags': ['-g', '-O0', '-pg'],
+        'cflags': ['-g', '-pg'],
         'msvs_settings': {
           'VCCLCompilerTool': {
             'Optimization': '0', # /Od

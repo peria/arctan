@@ -6,10 +6,10 @@
 #include "base/base.h"
 #include "number/integer.h"
 
-typedef std::pair<int, int> Factor;
+struct Factor;
 
 // FactoredInteger class stores a number in following format.
-//   n_ * \prod_i factor[i].first ^ factor[i].second
+//   n_ * \prod_i factor[i].base ^ factor[i].exponent
 // where |n_| is not smooth on factors.
 class FactoredInteger {
  public:
@@ -49,6 +49,13 @@ class FactoredInteger {
 
   Integer n_;
   std::vector<Factor> factors_;
+};
+
+struct Factor {
+  Factor(int b, int e) : base(b), exponent(e) {}
+
+  int base;
+  int exponent;
 };
 
 #endif  // PI_NUMBER_FACTORED_INTEGER_H_
