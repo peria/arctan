@@ -4,8 +4,17 @@
 {
   'target_defaults': {
     'default_configuration': 'Release',
-    'cflags': ['-std=c++0x', '-Wall'],
-    'include_dirs': ['..'],
+    'cflags': [
+      '-std=c++0x',
+      '-Wall',
+    ],
+    'libralies': [
+      '-lglog',
+      '-lgflags'
+    ],
+    'include_dirs': [
+      '..'
+    ],
 
     'configurations': {
       'Debug': {

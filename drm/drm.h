@@ -13,12 +13,23 @@ class Integer;
 class Drm {
  public:
   Drm(int64 x, int64 n);
-  void Compute(Integer* p, Integer* q);
-  void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
 
- private:
-  void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
+  virtual ~Drm();
 
+  // Computes above equation and stores P and Q.
+  // p/q is computed values of arctan(1/x_) with expanding in n_ terms.
+  virtual void Compute(Integer* p, Integer* q);
+
+ protected:
+  // Recursively calls itself to merge terms in [low, mid) and [mid, up).
+  // Then Core() merges them into one term (A, B, C).
+  // If the range [low, up) figures one integer, then set values for a term.
+  virtual void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
+
+  // Set values for k-th term.
+  virtual void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
+
+  // The quotient of the argument of arctan.
   int64 x_;
   int64 n_;
 };

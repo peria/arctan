@@ -10,6 +10,8 @@ Drm::Drm(int64 x, int64 digits)
   : x_(x),
     n_(static_cast<int64>(digits / (2 * std::log10(x)))) {}
 
+Drm::~Drm() {}
+
 void Drm::Compute(Integer* p, Integer* q) {
   Integer c;
   Core(0, n_, q, p, &c);
