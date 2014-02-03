@@ -16,10 +16,10 @@ class Integer;
 // are merged by DRM.  They must be factored over p^m < 2^i.
 class Drm4 : public Drm {
  public:
+  static void Init();
+
   Drm4(int64 x, int64 n);
   virtual void Compute(Integer* p, Integer* q);
-
-  static void Init();
 
  private:
   // Similar to usual DRM algorithm.  Unit of divisions is kDivision.
@@ -31,8 +31,6 @@ class Drm4 : public Drm {
 
   virtual void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
 
-  int64 x_;  // Quotient of the argument of arctan.
-  int64 n_;  // Required number of terms.
   int64 m_;  // The number of divisions.  m_ - 1 <= n_ / 2^K < m_
 };
 

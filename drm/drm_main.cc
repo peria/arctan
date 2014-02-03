@@ -47,7 +47,7 @@ Drm* ChooseAlgorithm(int64 quat, int64 digits) {
 
 void ComputePi(Real* pi) {
   std::fprintf(stderr,
-               "Computing Pi for %lld digits using algorithm No.%d.\n",
+               "Computing Pi for %ld digits using algorithm No.%d.\n",
               FLAGS_digits, FLAGS_algorithm);
 
   pi->SetValue(0);
