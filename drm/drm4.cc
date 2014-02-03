@@ -79,20 +79,7 @@ void Drm4::DivisionCore(int64 low, int64 width, int level,
   Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
   Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
 
-  // Divide GCD.
-  Integer::Div(*a0, g_gcd[level], a0);
-  Integer::Div(*c0, g_gcd[level], c0);
-
-#if 0
-  // Debug output
-  std::fprintf(stderr, "[%4lld-%4lld] ", low, width);
-  Integer::Print(*a0);
-  std::fprintf(stderr, " ");
-  Integer::Print(*b0);
-  std::fprintf(stderr, " ");
-  Integer::Print(*c0);
-  std::fprintf(stderr, "\n");
-#endif
+  // TODO(peria): Divide by GCD.
 }
 
 void Drm4::SetValues(int64 k, Integer* a, Integer* b, Integer* c) {
