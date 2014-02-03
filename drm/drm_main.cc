@@ -7,6 +7,7 @@
 #include <glog/logging.h>
 #include <gmp.h>
 
+#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -29,13 +30,33 @@ struct Term {
 const Term terms[] = {{16, 5}, {-4, 239}};
 }  // namespace
 
+Drm* ChooseAlgorithm(int64 quat, int64 digits) {
+  switch (FLAGS_algorithm) {
+  case 1:
+    return new Drm(quat, digits);
+  case 2:
+    return new Drm2(quat, digits);
+  case 3:
+    return new Drm3(quat, digits);
+  case 4:
+    Drm4::Init();
+    return new Drm4(quat, digits);
+  }
+  return NULL;
+}
+
 void ComputePi(Real* pi) {
+  std::fprintf(stderr,
+               "Computing Pi for %lld digits using algorithm No.%d.\n",
+              FLAGS_digits, FLAGS_algorithm);
+
   pi->SetValue(0);
   for (const Term& term : terms) {
     Integer ip, iq;
     clock_t start = clock();
-    Drm drm(term.quatient, FLAGS_digits);
-    drm.Compute(&ip, &iq);
+    Drm* drm = ChooseAlgorithm(term.quatient, FLAGS_digits);
+    assert(drm != NULL);
+    drm->Compute(&ip, &iq);
     Integer::Mul(ip, term.coef, &ip);
 
     Real fp(ip), fq(iq);
@@ -45,6 +66,7 @@ void ComputePi(Real* pi) {
     std::fprintf(stderr, "Computed Arctan(1/%lld) in %6.3fsec\n",
                  term.quatient,
                  static_cast<double>(end - start) / CLOCKS_PER_SEC);
+    delete drm;
   }
 }
 

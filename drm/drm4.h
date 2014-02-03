@@ -2,6 +2,7 @@
 #define DRM_DRM4_H_
 
 #include "base/base.h"
+#include "drm/drm.h"
 
 class Integer;
 
@@ -13,22 +14,22 @@ class Integer;
 //
 // Those values can be factored easily, if values for j*2^i <= k < (j+1)*2^i
 // are merged by DRM.  They must be factored over p^m < 2^i.
-class Drm4 {
+class Drm4 : public Drm {
  public:
   Drm4(int64 x, int64 n);
-  void Compute(Integer* p, Integer* q);
+  virtual void Compute(Integer* p, Integer* q);
 
   static void Init();
 
  private:
   // Similar to usual DRM algorithm.  Unit of divisions is kDivision.
-  void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
+  virtual void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
 
   // Apply DRM on a tournament of 2^k terms.
   void DivisionCore(int64 low, int64 up, int level,
                     Integer* a, Integer* b, Integer* c);
 
-  void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
+  virtual void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
 
   int64 x_;  // Quotient of the argument of arctan.
   int64 n_;  // Required number of terms.

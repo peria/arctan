@@ -19,10 +19,8 @@ Integer g_gcd[kDivisionLadder];
 }
 
 Drm4::Drm4(int64 x, int64 digits)
-  : x_(x),
-    n_(static_cast<int64>(digits / (2 * std::log10(x)))),
-    m_(n_  / kDivision + 1) {
-}
+  : Drm(x, digits),
+    m_(n_  / kDivision + 1) {}
 
 void Drm4::Compute(Integer* p, Integer* q) {
   Integer c;

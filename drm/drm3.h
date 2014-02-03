@@ -1,9 +1,10 @@
-#ifndef PI_DRM_DRM3_H_
-#define PI_DRM_DRM3_H_
+#ifndef DRM_DRM3_H_
+#define DRM_DRM3_H_
 
 #include <gmp.h>
 
 #include "base/base.h"
+#include "drm/drm.h"
 
 class Integer;
 class FactoredInteger;
@@ -16,19 +17,16 @@ class FactoredInteger;
 //
 // Drm3 class computes using FactoredInteger class, which describes a partially
 // factored number.
-class Drm3 {
+class Drm3 : public Drm {
  public:
   Drm3(int64 x, int64 n);
-  void Compute(Integer* p, Integer* q);
-  void Core(int64 low, int64 up, FactoredInteger* a, Integer* b,
-            FactoredInteger* c);
+  virtual void Compute(Integer* p, Integer* q);
 
  private:
-  void SetValues(int64 k, FactoredInteger* a, Integer* b,
-                 FactoredInteger* c);
-
-  int64 x_;
-  int64 n_;
+  virtual void Core(int64 low, int64 up, FactoredInteger* a, Integer* b,
+		    FactoredInteger* c);
+  virtual void SetValues(int64 k, FactoredInteger* a, Integer* b,
+			 FactoredInteger* c);
 };
 
-#endif  // PI_DRM_DRM2_H_
+#endif  // DRM_DRM2_H_
