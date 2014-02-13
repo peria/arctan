@@ -7,9 +7,8 @@
 #include "number/factored_integer.h"
 #include "number/integer.h"
 
-Drm2::Drm2(int64 x, int64 digits)
-    : x_(x),
-      n_(static_cast<int64>(digits / (2 * std::log10(x)))) {}
+Drm2::Drm2(int64 x, int64 digits) :
+  Drm(x, digits) {}
 
 void Drm2::Compute(Integer* p, Integer* q) {
   FactoredInteger a, b, c;

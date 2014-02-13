@@ -9,24 +9,13 @@
 #include "number/integer.h"
 
 namespace {
-const int kDivisionLadder = 5;
+const int kDivisionLadder = 3;
 const int kDivision = 1 << kDivisionLadder;
 // Odd primes up to kDivision.
 const int kPrimes[] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
 
 // g_gcd[i] is GCD of 2^i terms.
 Integer g_gcd[kDivisionLadder];
-}
-
-Drm4::Drm4(int64 x, int64 digits)
-  : x_(x),
-    n_(static_cast<int64>(digits / (2 * std::log10(x)))),
-    m_(n_  / kDivision + 1) {
-}
-
-void Drm4::Compute(Integer* p, Integer* q) {
-  Integer c;
-  Core(0, m_, q, p, &c);
 }
 
 void Drm4::Init() {
@@ -40,6 +29,15 @@ void Drm4::Init() {
       }
     }
   }
+}
+
+Drm4::Drm4(int64 x, int64 digits)
+  : Drm(x, digits),
+    m_(n_  / kDivision + 1) {}
+
+void Drm4::Compute(Integer* p, Integer* q) {
+  Integer c;
+  Core(0, m_, q, p, &c);
 }
 
 void Drm4::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
@@ -64,6 +62,7 @@ void Drm4::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
 void Drm4::DivisionCore(int64 low, int64 width, int level,
                         Integer* a0, Integer* b0, Integer* c0) {
   if (width == 1) {
+    assert(level == -1);
     SetValues(low, a0, b0, c0);
     return;
   }
@@ -80,7 +79,7 @@ void Drm4::DivisionCore(int64 low, int64 width, int level,
   Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
   Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
 
-  // factorization
+  // TODO(peria): Divide by GCD.
 }
 
 void Drm4::SetValues(int64 k, Integer* a, Integer* b, Integer* c) {

@@ -7,10 +7,7 @@
       'target_name': 'drm_all',
       'type': 'none',
       'dependencies': [
-        'drm_main',
-        'drm2_main',
-        'drm3_main',
-        'drm4_main'
+        'drm_main'
       ]
     },
     {
@@ -18,55 +15,18 @@
       'type': 'executable',
       'dependencies': [
         'drm',
+        'drm2',
+        'drm3',
+        'drm4',
         '../number/number.gyp:number'
       ],
       'sources': [
         'drm_main.cc'
       ],
       'libraries': [
-        '-lgmp'
-      ]
-    },
-    {
-      'target_name': 'drm2_main',
-      'type': 'executable',
-      'dependencies': [
-        'drm2',
-        '../number/number.gyp:number'
-      ],
-      'sources': [
-        'drm2_main.cc'
-      ],
-      'libraries': [
-        '-lgmp'
-      ]
-    },
-    {
-      'target_name': 'drm3_main',
-      'type': 'executable',
-      'dependencies': [
-        'drm3',
-        '../number/number.gyp:number'
-      ],
-      'sources': [
-        'drm3_main.cc'
-      ],
-      'libraries': [
-        '-lgmp'
-      ]
-    },
-    {
-      'target_name': 'drm4_main',
-      'type': 'executable',
-      'dependencies': [
-        'drm4',
-        '../number/number.gyp:number'
-      ],
-      'sources': [
-        'drm4_main.cc'
-      ],
-      'libraries': [
-        '-lgmp'
+        '-lgmp',
+	'-lgflags',
+	'-lglog'
       ]
     },
     {
@@ -86,6 +46,7 @@
         'drm2.cc'
       ],
       'dependencies': [
+        'drm',
         '../number/number.gyp:number'
       ]
     },
@@ -96,6 +57,7 @@
         'drm3.cc'
       ],
       'dependencies': [
+        'drm',
         '../number/number.gyp:number'
       ]
     },
@@ -106,6 +68,7 @@
         'drm4.cc'
       ],
       'dependencies': [
+        'drm',
         '../number/number.gyp:number'
       ]
     }

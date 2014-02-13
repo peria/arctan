@@ -29,8 +29,9 @@ class Integer {
   // Returns a remainder of a / b.
   static int64 Remain(const Integer& a, const int64 b);
 
-  // Computes (*c) = a / b.
+  // Computes (*c) = a / b, assuming a is a multiple of b.
   static void Div(const Integer& a, const int64 b, Integer* c);
+  static void Div(const Integer& a, const Integer& b, Integer* c);
 
   // Computes (*c) = a ^ b.
   static void Power(const int64 a, const int64 b, Integer* c);
