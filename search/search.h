@@ -16,7 +16,6 @@ class Search {
   Search(p_max, x_max);
 
  private:
-  std::vector<Factor>
   int64 p_max_;
   int64 x_max_;
 };
