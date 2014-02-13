@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "base/base.h"
+#include "base/prime.h"
 
 class Factor;
 
@@ -13,11 +14,14 @@ class Factor;
 // 3) Generate pi-fomulae and check them.
 class Search {
  public:
-  Search(p_max, x_max);
+  Search(int64 p_max, int64 x_max);
 
  private:
-  int64 p_max_;
-  int64 x_max_;
+  std::vector<std::vector<Factor> > factors_;
+
+  const int64 p_max_;
+  const int64 x_max_;
+  Prime primes_;
 };
 
 struct Factor {

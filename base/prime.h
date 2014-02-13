@@ -15,7 +15,7 @@ class Prime {
   void ResetIndex();
 
   static bool IsPrimeSt(int64 n);
-  
+
  private:
   void Sieve();
 

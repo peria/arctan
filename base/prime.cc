@@ -50,7 +50,7 @@ int Prime::GetNextPrime() {
       return 5;
     }
   }
-  if (index_ >= bits_.size())
+  if (index_ >= static_cast<int>(bits_.size()))
     return -1;
   int prime = index_ * 30 + kOffset[bit_];
 
@@ -89,7 +89,7 @@ void Prime::Sieve() {
       int bid = Bit2Index(bit);
       const int64 offset = kOffset[bid];
       const int64 p = 30 * i + offset;
-      int64 k = (p + offset) * i + offset * offset / 30;
+      size_t k = (p + offset) * i + offset * offset / 30;
       int l = bid;
       while (k < bits_.size()) {
         bits_[k] &= kBitMask[bid][l];
@@ -111,10 +111,10 @@ int Prime::GetPrimes(int n, std::vector<int>* primes) {
     primes->push_back(3);
   if (5 <= n)
     primes->push_back(5);
-  for (size_t i = 0; i < n / 30; ++i) {
+  for (int i = 0; i < n / 30; ++i) {
     for (uint8 bits = bits_[i]; bits; bits &= bits - 1) {
       int bid = Bit2Index(bits & -bits);
-      int p = 30 * i + kIdxOff[bid];
+      int p = 30 * i + kOffset[bid];
       primes->push_back(p);
     }
   }
@@ -122,7 +122,7 @@ int Prime::GetPrimes(int n, std::vector<int>* primes) {
   size_t i = n / 30;
   for (uint8 bits = bits_[i]; bits; bits &= bits - 1) {
     int bid = Bit2Index(bits & -bits);
-    int p = 30 * i + kIdxOff[bid];
+    int p = 30 * i + kOffset[bid];
     if (p > n)
       break;
     primes->push_back(p);
@@ -150,13 +150,13 @@ int Prime::CountPrimes(int n) {
     ++ret;
   if (5 <= n)
     ++ret;
-  for (size_t i = 0; i < n / 30; ++i)
+  for (int i = 0; i < n / 30; ++i)
     ret += BitCnt(bits_[i]);
 
   size_t i = n / 30;
   for (uint8 bits = bits_[i]; bits; bits &= bits - 1) {
     int bid = Bit2Index(bits & -bits);
-    int p = 30 * i + kIdxOff[bid];
+    int p = 30 * i + kOffset[bid];
     if (p > n)
       break;
     ++ret;
@@ -177,14 +177,14 @@ bool Prime::IsPrime(int64 n) {
 
   uint8 bit = bits_[n / 30];
   switch (n % 30) {
-  case  1: return (bits_[idx] & 0x01) != 0;
-  case  7: return (bits_[idx] & 0x02) != 0;
-  case 11: return (bits_[idx] & 0x04) != 0;
-  case 13: return (bits_[idx] & 0x08) != 0;
-  case 17: return (bits_[idx] & 0x10) != 0;
-  case 19: return (bits_[idx] & 0x20) != 0;
-  case 23: return (bits_[idx] & 0x40) != 0;
-  case 29: return (bits_[idx] & 0x80) != 0;
+  case  1: return (bit & 0x01) != 0;
+  case  7: return (bit & 0x02) != 0;
+  case 11: return (bit & 0x04) != 0;
+  case 13: return (bit & 0x08) != 0;
+  case 17: return (bit & 0x10) != 0;
+  case 19: return (bit & 0x20) != 0;
+  case 23: return (bit & 0x40) != 0;
+  case 29: return (bit & 0x80) != 0;
   }
 
   return false;
