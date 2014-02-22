@@ -1,6 +1,7 @@
 #ifndef SEARCH_SEARCH_H_
 #define SEARCH_SEARCH_H_
 
+#include <map>
 #include <vector>
 
 #include "base/base.h"
@@ -18,6 +19,10 @@ class Search {
   void Sieve();
 
  private:
+  // Add exponent of prime for x = (r + pk*i), because (x^2+1) % prime == 0
+  // for such x.
+  void SieveInternal(int64 root, int64 pk, int prime);
+  
   std::vector<Element> elements_;
 
   const int64 p_max_;
@@ -25,14 +30,9 @@ class Search {
   Prime primes_;
 };
 
-struct Factor {
-  int base;
-  int exponent;
-};
-
 struct Element {
   int x;
-  std::vector<Factor> factors;
+  std::map<int, int> factors;  // factors[base] = exponent
 };
 
 #endif  // SEARCH_SEARCH_H_

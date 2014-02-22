@@ -60,7 +60,8 @@ int Prime::GetNextPrime() {
       bit_ = 0;
       ++index_;
     }
-  } while ((bits_[index_] & (1 << bit_)) == 0);
+  } while (index_ < static_cast<int>(bits_.size()) &&
+           ((bits_[index_] & (1 << bit_)) == 0));
 
   return prime;
 }
