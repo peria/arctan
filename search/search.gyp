@@ -27,7 +27,8 @@
         'search.cc',
       ],
       'dependencies': [
-        '../base/base.gyp:prime'
+        '../base/base.gyp:prime',
+        '../base/base.gyp:modulo'
       ]
     }
   ]

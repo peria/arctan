@@ -1,6 +1,6 @@
 #include "base/modulo.h"
 
-#include <assert>
+#include <cassert>
 
 #include "base/base.h"
 

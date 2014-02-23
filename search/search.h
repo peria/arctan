@@ -32,6 +32,7 @@ class Search {
 
 struct Element {
   int x;
+  double value;
   std::map<int, int> factors;  // factors[base] = exponent
 };
 
