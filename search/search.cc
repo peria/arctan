@@ -21,7 +21,6 @@ void Search::Sieve() {
     if (prime % 4 != 1)
       continue;
     int64 root = Modulo::SquareRoot(prime - 1, prime);
-
     for (int64 pk = prime; pk < x_max_; pk *= prime) {
       for (int64 x = root; x < x_max_; x += pk) {
         elements_[x].factors[prime] = elements_[x].factors[prime] + 1;
@@ -33,6 +32,7 @@ void Search::Sieve() {
       }
 
       int64 s = (root * root + 1) / pk;
+      // TODO(peria): Fix it. r = r + (- s * (2 * r)^(-1) mod p) * pk
       root += (prime * prime - s * (prime + 1) / 2) % prime * pk;
     }
   }
