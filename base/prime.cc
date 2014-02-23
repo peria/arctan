@@ -50,18 +50,19 @@ int Prime::GetNextPrime() {
       return 5;
     }
   }
-  if (index_ >= static_cast<int>(bits_.size()))
-    return -1;
-  int prime = index_ * 30 + kOffset[bit_];
 
   // Search next prime
   do {
     if (++bit_ > 7) {
       bit_ = 0;
-      ++index_;
+      if (++index_ >= static_cast<int>(bits_.size()))
+        break;
     }
-  } while (index_ < static_cast<int>(bits_.size()) &&
-           ((bits_[index_] & (1 << bit_)) == 0));
+  } while ((bits_[index_] & (1 << bit_)) == 0);
+
+  if (index_ >= static_cast<int>(bits_.size()))
+    return -1;
+  int prime = index_ * 30 + kOffset[bit_];
 
   return prime;
 }
