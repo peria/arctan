@@ -17,6 +17,7 @@ class Search {
  public:
   Search(int64 p_max, int64 x_max);
   void Sieve();
+  void Debug(std::vector<Element>* elements);
 
  private:
   // Add exponent of prime for x = (r + pk*i), because (x^2+1) % prime == 0
