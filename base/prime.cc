@@ -64,7 +64,7 @@ int Prime::GetNextPrime() {
     return -1;
   int prime = index_ * 30 + kOffset[bit_];
 
-  return prime;
+  return (prime <= n_) ? prime : -1;
 }
 
 namespace {
