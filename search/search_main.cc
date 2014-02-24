@@ -1,9 +1,14 @@
 #include "search/search.h"
 
+#include <glog/logging.h>
+#include <gflags/gflags.h>
+
 #include <iostream>
 #include <vector>
 
 int main(int argc, char** argv) {
+  google::ParseCommandLineFlags(&argc, &argv, true);
+
   const int64 pmax = 100;
   const int64 xmax = 200;
   Search search(pmax, xmax);

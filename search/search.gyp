@@ -18,6 +18,10 @@
       ],
       'dependencies': [
         'search'
+      ],
+      'libraries': [
+        '-lglog',
+        '-lgflags'
       ]
     },
     {
