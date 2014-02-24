@@ -23,7 +23,7 @@ class Search {
   // Add exponent of prime for x = (r + pk*i), because (x^2+1) % prime == 0
   // for such x.
   void SieveInternal(int64 root, int64 pk, int prime);
-  
+
   std::vector<Element> elements_;
 
   const int64 p_max_;
