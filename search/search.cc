@@ -11,7 +11,7 @@ Search::Search(int64 p_max, int64 x_max)
   elements_.resize(x_max_ + 1);
   for (int i = 0; i <= x_max_; ++i) {
     elements_[i].x = i;
-    elements_[i].value = 1;
+    elements_[i].value = 1 + (i & 1);
   }
 }
 
@@ -32,8 +32,8 @@ void Search::Sieve() {
       }
 
       int64 s = (root * root + 1) / pk;
-      // TODO(peria): Fix it. r = r + (- s * (2 * r)^(-1) mod p) * pk
-      root += (prime * prime - s * (prime + 1) / 2) % prime * pk;
+      int64 t = prime - s * Modulo::Inverse(2 * root, prime) % prime;
+      root = (root + t * pk) % (prime * pk);
     }
   }
 }
