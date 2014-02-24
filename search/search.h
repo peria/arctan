@@ -5,9 +5,12 @@
 #include <vector>
 
 #include "base/base.h"
-#include "base/prime.h"
 
 class Element;
+class Term;
+typedef std::vector<Term> Formula;
+typedef std::vector<int32> Row;
+typedef std::vector<Row> Matrix;
 
 // Searcher class searches pi-fomulae with arctangents in following steps.
 // 1) Sieve x^2+1 for x < x_max_, using primes up to p_max_.
@@ -16,7 +19,13 @@ class Element;
 class Search {
  public:
   Search(int64 p_max, int64 x_max);
+
+  // Factorize x^2+1 for 0<x<=x_max, using primes up to p_max.
   void Sieve();
+
+  void FindFormulae(int num_terms, std::vector<Formula>* formulae);
+  
+  // Copys sieved data.
   void Debug(std::vector<Element>* elements);
 
  private:
@@ -24,17 +33,35 @@ class Search {
   // for such x.
   void SieveInternal(int64 root, int64 pk, int prime);
 
+  // Returns true if |elem| is usable in the condition where other parameters
+  // figure.
+  bool IsUsable(const Element& elem, const std::vector<int32>& primes,
+                int32 num_terms);
+
+  void FindFormulaeCore(int num_terms,
+                        const std::vector<Element*>& elements,
+                        const std::vector<int32>& primes,
+                        std::vector<Formula>* formulae);
+
+  void GetCoefficients(const Matrix& matrix, std::vector<int32>* coeffs);
+
   std::vector<Element> elements_;
 
   const int64 p_max_;
   const int64 x_max_;
-  Prime primes_;
+  std::vector<int32> primes_;
 };
 
 struct Element {
   int x;
   double value;
   std::map<int, int> factors;  // factors[base] = exponent
+};
+
+// Term describes a term of a formula, |coef|*atan(1/quot).
+struct Term {
+  int32 coef;
+  int32 quot;
 };
 
 #endif  // SEARCH_SEARCH_H_
