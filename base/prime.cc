@@ -1,5 +1,7 @@
 #include "base/prime.h"
 
+#include <glog/logging.h>
+
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -30,6 +32,7 @@ const int64 kCoef[] = {6, 4, 2, 4, 2, 4, 6, 2};
 }  // namespace
 
 Prime::Prime(const int n) : n_(n), index_(-1), bit_(0) {
+  bits_.clear();
   bits_.resize((n + 29) / 30, 0xff);
   bits_[0] = 0xfe;
   Sieve();
@@ -84,7 +87,7 @@ inline int Bit2Index(uint8 bit) {
 }  // namespace
 
 void Prime::Sieve() {
-  const size_t imax = std::sqrt(n_ + 30) / 30;
+  const size_t imax = (std::sqrt(n_) + 30) / 30;
   for (size_t i = 0; i < imax; ++i) {
     for (uint8 bits = bits_[i]; bits; bits &= bits - 1) {
       uint8 bit = bits & -bits;
