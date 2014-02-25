@@ -6,45 +6,37 @@
 #include <iostream>
 #include <vector>
 
-DEFINE_int64(pmax, 100, "Upper limit of prime numbers to use in sieve.");
-DEFINE_int64(xmax, 200, "Upper bound of x to sieve.");
+#include "base/combination.h"
+
+DEFINE_int64(pmax, 50, "Upper limit of prime numbers to use in sieve.");
+DEFINE_int64(xmax, 250, "Upper bound of x to sieve.");
+DEFINE_int32(terms, 2, "The nubmer of terms.");
 
 int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, true);
 
   Search search(FLAGS_pmax, FLAGS_xmax);
   search.Sieve();
+
+#if 0
   std::vector<Element> elements;
   search.Debug(&elements);
-
-  int64 num_smooth = 0;
-  int64 sub_smooth = 0;  // Count x's for (x^2+1/primes) < pmax^2.
-  for (const Element element : elements) {
-    const int64 x = element.x;
-    const int64 v = static_cast<int64>(element.value);
-    // Skip smooth numbers
-    if (v == x * x + 1) {
-      ++num_smooth;
-      continue;
-    }
-    if ((x * x + 1) % v == 0) {
-      if ((x * x + 1) / v < FLAGS_pmax * FLAGS_pmax)
-        ++sub_smooth;
-      continue;
-    }
-
-    std::cerr << "Error:"
-              << "\nx=" << x
-              << "\n x^2+1=" << (x * x + 1)
-              << "\n value=" << v << "=";
-    for (const auto factor : element.factors)
-      std::cerr << factor.first << "^" << factor.second << "*";
-    std::cerr << "\n";
+  for (const Element elem : elements) {
+    std::cout << elem.x << ":" << elem.value << ":";
+    for (const auto factor : elem.factors)
+      std::cout << " " << factor.first << "^" << factor.second;
+    std::cout << "\n";
   }
+#endif
 
-  std::cout << "smooth rate: " << num_smooth << " / "
-            << sub_smooth << " / " << FLAGS_xmax
-            << " for p <= " << FLAGS_pmax << "\n";
+  std::vector<Formula> formulae;
+  search.FindFormulae(FLAGS_terms, &formulae);
+  for (const Formula formula : formulae) {
+    std::cout << formula.k << " : ";
+    for (const Term term : formula.terms)
+      std::cout << term.coef << "atan(1/" << term.quot << ") ";
+    std::cout << "\n";
+  }
 
   return 0;
 }

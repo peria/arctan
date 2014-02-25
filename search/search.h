@@ -7,8 +7,7 @@
 #include "base/base.h"
 
 class Element;
-class Term;
-typedef std::vector<Term> Formula;
+class Formula;
 typedef std::vector<int32> Row;
 typedef std::vector<Row> Matrix;
 
@@ -36,14 +35,13 @@ class Search {
   // Returns true if |elem| is usable in the condition where other parameters
   // figure.
   bool IsUsable(const Element& elem, const std::vector<int32>& primes,
-                int32 num_terms);
+                int32 num_primes);
 
-  void FindFormulaeCore(int num_terms,
-                        const std::vector<Element*>& elements,
-                        const std::vector<int32>& primes,
-                        std::vector<Formula>* formulae);
+  // Returns false if any element of coeffs is 0.
+  bool GetCoefficients(const Matrix& matrix, std::vector<int32>* coeffs);
 
-  void GetCoefficients(const Matrix& matrix, std::vector<int32>* coeffs);
+  // Compute determinant of a square matrix.  |matrix| is broken.
+  int32 Determ(Matrix& matrix);
 
   std::vector<Element> elements_;
 
@@ -62,6 +60,12 @@ struct Element {
 struct Term {
   int32 coef;
   int32 quot;
+};
+
+// k*\pi/5 = \sum_i terms[i].coef * atan(1/terms[i].quot)
+struct Formula {
+  int32 k;
+  std::vector<Term> terms;
 };
 
 #endif  // SEARCH_SEARCH_H_

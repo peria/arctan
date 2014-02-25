@@ -1,10 +1,15 @@
 #include "search/search.h"
 
+#include <glog/logging.h>
+
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <map>
 #include <vector>
 
+#include "base/base.h"
+#include "base/combination.h"
 #include "base/modulo.h"
 #include "base/prime.h"
 
@@ -68,55 +73,111 @@ void Search::Sieve() {
   }
 }
 
+namespace {
+const double kPi4 = std::atan(1.0);
+const double kEps = 1.0e-5;
+}
+
 void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
-  assert(num_terms == 3);
-  std::vector<int32> used_primes(2);
-  // TODO(peria): Choose |num_terms| - 1 primes.
-  //              Now |num_terms| is ignored, assuming it is 3.
-  for (size_t i0 = 0; i0 < primes_.size(); ++i0) {
-    used_primes[0] = primes_[i0];
-    for (size_t i1 = i0 + 1; i1 < primes_.size(); ++i1) {
-      used_primes[1] = primes_[i1];
-      // Filter elements
-      std::vector<Element*> usable_elements;
-      for (size_t x = 1; x < elements_.size(); ++x) {
-        if (IsUsable(elements_[x], used_primes, num_terms))
-          usable_elements.push_back(&elements_[x]);
+  const int num_primes = num_terms - 1;
+
+  std::sort(primes_.begin(), primes_.end());
+  do {
+    std::vector<int32> usable_primes;
+    for (int i = 0; i < num_primes; ++i)
+      usable_primes.push_back(primes_[i]);
+
+    std::vector<Element*> elements;
+    for (size_t x = 1; x < elements_.size(); ++x) {
+      if (IsUsable(elements_[x], usable_primes, num_primes))
+        elements.push_back(&elements_[x]);
+    }
+
+    if (elements.size() < static_cast<size_t>(num_terms))
+      continue;
+
+    do {
+      Matrix matrix(num_terms, Row(num_primes, 0));
+      for (int i = 0; i < num_terms; ++i) {
+        for (int j = 0; j < num_primes; ++j) {
+          matrix[i][j] = elements[i]->factors[usable_primes[j]];
+        }
       }
 
-      FindFormulaeCore(num_terms, usable_elements, used_primes, formulae);
-    }
-  }
-}
+      // Compute coefficients
+      std::vector<int32> coefficients;
+      if (!GetCoefficients(matrix, &coefficients))
+        continue;
+        
+      double sum = 0;
+      for (int i = 0; i < num_terms; ++i)
+        sum += coefficients[i] * std::atan(1.0 / elements[i]->x);
+      sum /= kPi4;
+      int k = std::round(sum);
 
-void FindFormulaeCore(int num_terms,
-                      const std::vector<Element*>& elements,
-                      const std::vector<int32>& primes,
-                      std::vector<Formula>* formulae) {
-  Matrix matrix(num_terms, Row(num_terms - 1, 0));
-  // TODO(peria): Choose |num_terms| primes.
-  //              Now |num_terms| is ignored, assuming it is 3.
-  for (size_t i0 = 0; i0 < elements.size(); ++i0) {
-    matrix[0][0] = elements[i0]->factors[primes[0]];
-    matrix[0][1] = elements[i0]->factors[primes[1]];
-    for (size_t i1 = i0 + 1; i1 < elements.size(); ++i1) {
-      matrix[1][0] = elements[i1]->factors[primes[0]];
-      matrix[1][1] = elements[i1]->factors[primes[1]];
-      for (size_t i2 = i1 + 1; i2 < elements.size(); ++i2) {
-        matrix[2][0] = elements[i2]->factors[primes[0]];
-        matrix[2][1] = elements[i2]->factors[primes[1]];
-        // Compute coefficients
-        std::vector<int32> coefficients;
-        GetCoefficients(matrix, &coefficients);
-        // Check k, coefficient of pi, is not 0.
+      if (k == 0 || std::abs(k - sum) > kEps)
+        continue;
+
+      Formula formula;
+      formula.k = k;
+      formula.terms.resize(num_terms);
+      for (int i = 0; i < num_terms; ++i) {
+        formula.terms[i].coef = coefficients[i];
+        formula.terms[i].quot = elements[i]->x;
       }
-    }
-  }
+      formulae->push_back(formula);
+    } while (std::next_combination(elements.begin(),
+                                   elements.begin() + num_terms,
+                                   elements.end()));
+  } while (std::next_combination(primes_.begin(),
+                                 primes_.begin() + num_primes,
+                                 primes_.end()));
 }
 
-void Search::GetCoefficients(const Matrix& matrix,
+bool Search::GetCoefficients(const Matrix& matrix,
                              std::vector<int32>* coeffs) {
-  
+  int n = matrix.size();
+  for (int i = 0; i < n; ++i) {
+    Matrix square(matrix);
+    square.erase(square.begin() + i);
+    int32 d = Determ(square);
+    if (d == 0)
+      return false;
+    coeffs->push_back((i % 2 == 0) ? d : -d);
+  }
+  return true;
+}
+
+int32 Search::Determ(Matrix& matrix) {
+  const int n = matrix.size();
+
+  int64 ret = 1;
+  int64 mul = 1;
+  for (int p = 0; p < n; ++p) {
+    int i = p;
+    for (i = p; i < n && matrix[i][p] == 0; ++i) {}
+    if (i == n)
+      return 0;
+    if (i != p) {
+      std::swap(matrix[i], matrix[p]);
+      ret = -ret;
+    }
+
+    int32 piv = matrix[p][p];
+    for (int j = i + 1; j < n; ++j) {
+      if (matrix[j][p] == 0)
+        continue;
+      int32 mat = matrix[j][p];
+      for (int k = p; k < n; ++k)
+        matrix[j][k] = matrix[j][k] * piv - mat * matrix[p][k];
+      mul *= piv;
+    }
+  }
+
+  for (int i = 0; i < n; ++i)
+    ret *= matrix[i][i];
+
+  return ret / mul;
 }
 
 void Search::Debug(std::vector<Element>* elements) {
@@ -124,11 +185,14 @@ void Search::Debug(std::vector<Element>* elements) {
 }
 
 bool Search::IsUsable(const Element& elem, const std::vector<int32>& primes,
-                      int32 num_terms) {
+                      int32 num_primes) {
+  LOG_IF(INFO, primes[0] == 13 && elem.x == 239) << "here";
   if (elem.value < 1)
     return false;
-  if (elem.factors.size() >= static_cast<size_t>(num_terms))
+  LOG_IF(INFO, primes[0] == 13 && elem.x == 239) << "here";
+  if (elem.factors.size() > static_cast<size_t>(num_primes))
     return false;
+  LOG_IF(INFO, primes[0] == 13 && elem.x == 239) << "here";
   for (auto factor : elem.factors) {
     if (std::find(primes.begin(), primes.end(), factor.first) == primes.end())
       return false;
