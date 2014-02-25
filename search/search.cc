@@ -44,7 +44,7 @@ void Search::Sieve() {
       }
 
       int64 s = (root * root + 1) / pk;
-      int64 t = prime - s * Modulo::Inverse(2 * root, prime) % prime;
+      int64 t = (prime - s * Modulo::Inverse(2 * root, prime) % prime) % prime;
       root += t * pk;
     }
   }
@@ -53,6 +53,9 @@ void Search::Sieve() {
     int64 norm = x * x + 1;
     if (norm > elements_[x].value * p_max_) {
       // Set a sign to figure this element is not smooth.
+      LOG_IF(INFO, x == 239) << norm << " " << elements_[x].value << " "
+                             << p_max_ << " "
+                             << (elements_[x].value * p_max_);
       elements_[x].value = 0;
       continue;
     }
