@@ -10,7 +10,7 @@
 
 DEFINE_int64(pmax, 50, "Upper limit of prime numbers to use in sieve.");
 DEFINE_int64(xmax, 250, "Upper bound of x to sieve.");
-DEFINE_int32(terms, 2, "The nubmer of terms.");
+DEFINE_int32(terms, 3, "The nubmer of terms.");
 
 int main(int argc, char** argv) {
   google::ParseCommandLineFlags(&argc, &argv, true);

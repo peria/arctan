@@ -32,8 +32,8 @@ void Search::Sieve() {
   // Sieve using |primes_|.
   for (int prime : primes_) {
     int64 root = Modulo::SquareRoot(prime - 1, prime);
-    for (int64 pk = prime; pk < x_max_; pk *= prime) {
-      root %= pk;
+    for (int64 pk = prime; root <= x_max_ || (pk - root <= x_max_);
+         pk *= prime) {
       for (int64 x = root; x < x_max_; x += pk) {
         elements_[x].factors[prime] = elements_[x].factors[prime] + 1;
         elements_[x].value *= prime;
@@ -46,6 +46,7 @@ void Search::Sieve() {
       int64 s = (root * root + 1) / pk;
       int64 t = (prime - s * Modulo::Inverse(2 * root, prime) % prime) % prime;
       root += t * pk;
+      root %= (pk * prime);
     }
   }
 
@@ -53,9 +54,6 @@ void Search::Sieve() {
     int64 norm = x * x + 1;
     if (norm > elements_[x].value * p_max_) {
       // Set a sign to figure this element is not smooth.
-      LOG_IF(INFO, x == 239) << norm << " " << elements_[x].value << " "
-                             << p_max_ << " "
-                             << (elements_[x].value * p_max_);
       elements_[x].value = 0;
       continue;
     }
@@ -120,6 +118,12 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
 
       if (k == 0 || std::abs(k - sum) > kEps)
         continue;
+
+      if (k < 0) {
+        k = -k;
+        for (size_t i = 0; i < coefficients.size(); ++i)
+          coefficients[i] = -coefficients[i];
+      }
 
       Formula formula;
       formula.k = k;
@@ -189,13 +193,10 @@ void Search::Debug(std::vector<Element>* elements) {
 
 bool Search::IsUsable(const Element& elem, const std::vector<int32>& primes,
                       int32 num_primes) {
-  LOG_IF(INFO, primes[0] == 13 && elem.x == 239) << "here";
   if (elem.value < 1)
     return false;
-  LOG_IF(INFO, primes[0] == 13 && elem.x == 239) << "here";
   if (elem.factors.size() > static_cast<size_t>(num_primes))
     return false;
-  LOG_IF(INFO, primes[0] == 13 && elem.x == 239) << "here";
   for (auto factor : elem.factors) {
     if (std::find(primes.begin(), primes.end(), factor.first) == primes.end())
       return false;
