@@ -22,6 +22,8 @@ int main(int argc, char** argv) {
   std::vector<Element> elements;
   search.Debug(&elements);
   for (const Element elem : elements) {
+    if (elem.value == 0)
+      continue;
     std::cout << elem.x << ":" << elem.value << ":";
     for (const auto factor : elem.factors)
       std::cout << " " << factor.first << "^" << factor.second;
@@ -32,7 +34,8 @@ int main(int argc, char** argv) {
   std::vector<Formula> formulae;
   search.FindFormulae(FLAGS_terms, &formulae);
   for (const Formula formula : formulae) {
-    std::cout << formula.k << " : ";
+    std::cout << formula.n << "\t"
+              << formula.k << "\t";
     for (const Term term : formula.terms)
       std::cout << term.coef << "atan(1/" << term.quot << ") ";
     std::cout << "\n";

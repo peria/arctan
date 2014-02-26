@@ -33,6 +33,18 @@ uint32 Modulo::Power(uint32 b, uint32 e, uint32 n) {
   return ret;
 }
 
+int32 Modulo::Gcd(int32 a, int32 b) {
+  if (b == 0)
+    return a;
+  int32 c = a % b;
+  while (c) {
+    a = b;
+    b = c;
+    c = a % b;
+  }
+  return b;
+}
+
 std::pair<int32, int32> Modulo::ExtendedGcd(int32 a, int32 b, int32 c) {
   if (a == 0 || b == 0)
     return std::pair<int32, int32>(0, 0);

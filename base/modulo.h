@@ -17,6 +17,9 @@ class Modulo {
   // otherwise, returns (0, 0).
   static std::pair<int32, int32> ExtendedGcd(int32 a, int32 b, int32 c);
 
+  // Returns GCD.
+  static int32 Gcd(int32 a, int32 b);
+
   // Returns a^(-1) mod p.
   static int32 Inverse(int32 a, int32 p);
 };

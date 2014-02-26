@@ -23,7 +23,7 @@ class Search {
   void Sieve();
 
   void FindFormulae(int num_terms, std::vector<Formula>* formulae);
-  
+
   // Copys sieved data.
   void Debug(std::vector<Element>* elements);
 
@@ -65,6 +65,7 @@ struct Term {
 // k*\pi/5 = \sum_i terms[i].coef * atan(1/terms[i].quot)
 struct Formula {
   int32 k;
+  int32 n;
   std::vector<Term> terms;
 };
 

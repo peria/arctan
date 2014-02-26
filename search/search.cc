@@ -13,6 +13,26 @@
 #include "base/modulo.h"
 #include "base/prime.h"
 
+namespace {
+const int32 kNumDigits = 10000;
+
+int32 GcdOfAll(const std::vector<int32>& vs) {
+  if (vs.empty())
+    return 0;
+  int32 gcd = std::abs(vs[0]);
+  for (size_t i = 1; i < vs.size(); ++i) {
+    int32 v = vs[i];
+    if (v == 0)
+      return 0;
+    gcd = Modulo::Gcd(gcd, std::abs(v));
+    if (gcd == 1)
+      return 1;
+  }
+  return gcd;
+}
+
+}  // namespace
+
 Search::Search(int64 p_max, int64 x_max) : p_max_(p_max), x_max_(x_max) {
   elements_.resize(x_max_ + 1);
   for (int i = 0; i <= x_max_; ++i) {
@@ -100,8 +120,11 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
     do {
       Matrix matrix(num_terms, Row(num_primes, 0));
       for (int i = 0; i < num_terms; ++i) {
+        const std::map<int, int>& factors = elements[i]->factors;
         for (int j = 0; j < num_primes; ++j) {
-          matrix[i][j] = elements[i]->factors[usable_primes[j]];
+          const int32 p = usable_primes[j];
+          std::map<int, int>::const_iterator itr = factors.find(p);
+          matrix[i][j] = (itr == factors.end()) ? 0 : itr->second;
         }
       }
 
@@ -109,8 +132,9 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
       std::vector<int32> coefficients;
       if (!GetCoefficients(matrix, &coefficients))
         continue;
-        
+
       double sum = 0;
+
       for (int i = 0; i < num_terms; ++i)
         sum += coefficients[i] * std::atan(1.0 / elements[i]->x);
       sum /= kPi4;
@@ -125,12 +149,21 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
           coefficients[i] = -coefficients[i];
       }
 
+      int32 gcd = Modulo::Gcd(k, GcdOfAll(coefficients));
+      if (gcd > 1) {
+        for (int i = 0; i < num_terms; ++i)
+          coefficients[i] /= gcd;
+        k /= gcd;
+      }
+
       Formula formula;
       formula.k = k;
+      formula.n = 1;
       formula.terms.resize(num_terms);
       for (int i = 0; i < num_terms; ++i) {
         formula.terms[i].coef = coefficients[i];
         formula.terms[i].quot = elements[i]->x;
+        formula.n += kNumDigits / 2 / std::log10(elements[i]->x);
       }
       formulae->push_back(formula);
     } while (std::next_combination(elements.begin(),
@@ -191,7 +224,8 @@ void Search::Debug(std::vector<Element>* elements) {
   *elements = elements_;
 }
 
-bool Search::IsUsable(const Element& elem, const std::vector<int32>& primes,
+bool Search::IsUsable(const Element& elem,
+                      const std::vector<int32>& primes,
                       int32 num_primes) {
   if (elem.value < 1)
     return false;
