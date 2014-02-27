@@ -10,6 +10,9 @@
         'factored_integer.cc',
         'integer.cc',
         'real.cc',
+      ],
+      'libraries': [
+        '-lgmp'
       ]
     }
   ]

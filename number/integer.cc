@@ -12,6 +12,10 @@ Integer::Integer(const Integer& n) {
   mpz_init_set(n_, n.n_);
 }
 
+Integer::Integer(const int64 n) {
+  mpz_init_set_si(n_, n);
+}
+
 Integer::~Integer() {
   mpz_clear(n_);
 }

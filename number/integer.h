@@ -10,13 +10,15 @@ class Integer {
  public:
   Integer();
   Integer(const Integer& n);
+  Integer(const int64 n);
   ~Integer();
 
   void SetValue(int64 n);
   void CopyFrom(const Integer& n);
 
   const mpz_t& Mpz() const { return n_; }
-
+  int64 Int64() const { return mpz_get_si(n_); };
+  
   // Static methods --------------------------------------------------
 
   // Computes (*c) = a + b.

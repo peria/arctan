@@ -7,7 +7,8 @@
       'target_name': 'drm_all',
       'type': 'none',
       'dependencies': [
-        'drm_main'
+        'drm_main',
+        'drm4_test'
       ]
     },
     {
@@ -25,8 +26,8 @@
       ],
       'libraries': [
         '-lgmp',
-	'-lgflags',
-	'-lglog'
+        '-lgflags',
+        '-lglog'
       ]
     },
     {
@@ -70,6 +71,23 @@
       'dependencies': [
         'drm',
         '../number/number.gyp:number'
+      ]
+    },
+    {
+      'target_name': 'drm4_test',
+      'type': 'executable',
+      'sources': [
+        'drm4_test.cc'
+      ],
+      'dependencies': [
+        'drm4'
+      ],
+      'libraries': [
+        '-lgmp',
+        '-lglog',
+        '-lgtest',
+        '-lpthread',
+        '-lgtest_main'
       ]
     }
   ]

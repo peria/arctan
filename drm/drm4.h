@@ -1,6 +1,8 @@
 #ifndef DRM_DRM4_H_
 #define DRM_DRM4_H_
 
+#include <vector>
+
 #include "base/base.h"
 #include "drm/drm.h"
 
@@ -17,11 +19,12 @@ class Integer;
 class Drm4 : public Drm {
  public:
   static void Init();
+  static void CopyGcdForTest(std::vector<Integer>* gcd);
 
   Drm4(int64 x, int64 n);
   virtual void Compute(Integer* p, Integer* q);
 
- private:
+ protected:
   // Similar to usual DRM algorithm.  Unit of divisions is kDivision.
   virtual void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
 
