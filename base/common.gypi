@@ -8,9 +8,10 @@
       '-std=c++0x',
       '-Wall',
     ],
-    'libralies': [
+    'ldflags': [
       '-lglog',
-      '-lgflags'
+      '-lgflags',
+      '-lgmp'
     ],
     'include_dirs': [
       '..'
@@ -33,7 +34,7 @@
         },
       }, # Debug
       'Release': {
-        'cflags+': ['-O3'],
+        'cflags': ['-O3'],
         'msvs_settings':{
           'VCCLCompilerTool': {
             'Optimization': '2', # /O2

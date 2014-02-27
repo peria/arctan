@@ -1,7 +1,4 @@
 {
-  'includes': [
-    '../base/common.gypi'
-  ],
   'targets': [
     {
       'target_name': 'number',

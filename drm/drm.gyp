@@ -1,7 +1,4 @@
 {
-  'includes': [
-    '../base/common.gypi'
-  ],
   'targets': [
     {
       'target_name': 'drm_all',
@@ -84,7 +81,6 @@
       ],
       'libraries': [
         '-lgmp',
-        '-lglog',
         '-lgtest',
         '-lpthread',
         '-lgtest_main'
