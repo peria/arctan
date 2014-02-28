@@ -1,4 +1,9 @@
 {
+  'target_defaults': {
+    'dependencies': [
+      '<(DEPTH)/number/number.gyp:number'
+    ]
+  },
   'targets': [
     {
       'target_name': 'drm_all',
@@ -16,59 +21,34 @@
         'drm2',
         'drm3',
         'drm4',
-        '../number/number.gyp:number'
+        '<(DEPTH)/number/number.gyp:number'
       ],
       'sources': [
         'drm_main.cc'
-      ],
-      'libraries': [
-        '-lgmp',
-        '-lgflags',
-        '-lglog'
       ]
     },
     {
       'target_name': 'drm',
       'type': 'static_library',
-      'sources': [
-        'drm.cc'
-      ],
-      'dependencies': [
-        '../number/number.gyp:number'
-      ]
+      'sources': ['drm.cc'],
     },
     {
       'target_name': 'drm2',
       'type': 'static_library',
-      'sources': [
-        'drm2.cc'
-      ],
-      'dependencies': [
-        'drm',
-        '../number/number.gyp:number'
-      ]
+      'sources': ['drm2.cc'],
+      'dependencies': ['drm']
     },
     {
       'target_name': 'drm3',
       'type': 'static_library',
-      'sources': [
-        'drm3.cc'
-      ],
-      'dependencies': [
-        'drm',
-        '../number/number.gyp:number'
-      ]
+      'sources': ['drm3.cc'],
+      'dependencies': ['drm']
     },
     {
       'target_name': 'drm4',
       'type': 'static_library',
-      'sources': [
-        'drm4.cc'
-      ],
-      'dependencies': [
-        'drm',
-        '../number/number.gyp:number'
-      ]
+      'sources': [ 'drm4.cc' ],
+      'dependencies': [ 'drm' ]
     },
     {
       'target_name': 'drm4_test',
@@ -80,7 +60,6 @@
         'drm4'
       ],
       'libraries': [
-        '-lgmp',
         '-lgtest',
         '-lpthread',
         '-lgtest_main'

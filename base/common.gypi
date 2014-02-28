@@ -8,7 +8,7 @@
       '-std=c++0x',
       '-Wall',
     ],
-    'ldflags': [
+    'libraries': [
       '-lglog',
       '-lgflags',
       '-lgmp'

@@ -15,10 +15,6 @@
       ],
       'dependencies': [
         'search'
-      ],
-      'libraries': [
-        '-lglog',
-        '-lgflags'
       ]
     },
     {
@@ -28,8 +24,8 @@
         'search.cc',
       ],
       'dependencies': [
-        '../base/base.gyp:prime',
-        '../base/base.gyp:modulo'
+        '<(DEPTH)/base/base.gyp:prime',
+        '<(DEPTH)/base/base.gyp:modulo'
       ]
     }
   ]
