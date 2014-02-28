@@ -43,7 +43,15 @@ void Drm4::CopyGcdForTest(std::vector<Integer>* gcd) {
 
 Drm4::Drm4(int64 x, int64 digits)
   : Drm(x, digits),
-    m_(n_ / kDivision + 1) {}
+    m_(n_ / kDivision + 1) {
+  x2k_.clear();
+  Integer xk;
+  xk.SetValue(x_);
+  for (int i = 0; i < kDivisionLadder; ++i) {
+    Integer::Mul(xk, xk, &xk);
+    x2k_.push_back(xk);
+  }
+}
 
 void Drm4::Compute(Integer* p, Integer* q) {
   Integer c;
@@ -92,28 +100,23 @@ void Drm4::DivisionCore(int64 low, int64 width, int level,
   DivisionCore(mid, width / 2, level - 1, &a1, &b1, &c1);
 
   Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
+  Integer::Mul(x2k_[level], *b0, b0);  // b0 = b0 * x^(2^(level + 1))
   Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
   Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
   Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
   Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
 
-  // TODO(peria): Divide by GCD.
   Integer::Div(*a0, g_gcd[level], a0);
   Integer::Div(*c0, g_gcd[level], c0);
 }
 
 void Drm4::SetValues(int64 k, Integer* a, Integer* b, Integer* c) {
-  // A_k = (2 * k + 1) * x^2
-  if (k == 0) {
-    a->SetValue(x_);
-  } else {
-    a->SetValue(2 * k + 1);
-    Integer::Mul(*a, x_ * x_, a);
-  }
+  // A_k = 2k + 1
+  a->SetValue(2 * k + 1);
 
   // B_k = 1
   b->SetValue(1);
 
-  // C_k = -(2 * k + 1)
+  // C_k = -(2k+1)
   c->SetValue((k < n_) ? (-(2 * k + 1)) : 0);
 }

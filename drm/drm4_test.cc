@@ -29,3 +29,5 @@ TEST_F(Drm4Test, Init) {
     EXPECT_EQ(ans[i], gcd[i].Int64()) << "For i = " << i;
 }
 
+TEST_F(Drm4Test, DivisionCore) {
+}

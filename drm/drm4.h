@@ -35,6 +35,7 @@ class Drm4 : public Drm {
   virtual void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
 
   int64 m_;  // The number of divisions.  m_ - 1 <= n_ / 2^K < m_
+  std::vector<Integer> x2k_;
 };
 
 #endif  // DRM_DRM_H_
