@@ -47,7 +47,7 @@ Drm4::Drm4(int64 x, int64 digits)
   x2k_.clear();
   Integer xk;
   xk.SetValue(x_);
-  for (int i = 0; i < kDivisionLadder; ++i) {
+  for (int i = 0; i <= kDivisionLadder; ++i) {
     Integer::Mul(xk, xk, &xk);
     x2k_.push_back(xk);
   }
@@ -69,6 +69,7 @@ void Drm4::Compute(Integer* p, Integer* q) {
 void Drm4::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
   if (low == up - 1) {
     DivisionCore(low * kDivision, kDivision, kDivisionLadder - 1, a0, b0, c0);
+    Integer::Mul(x2k_[kDivisionLadder], *a0, a0);
     return;
   }
 
