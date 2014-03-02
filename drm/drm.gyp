@@ -48,7 +48,10 @@
       'target_name': 'drm4',
       'type': 'static_library',
       'sources': [ 'drm4.cc' ],
-      'dependencies': [ 'drm' ]
+      'dependencies': [
+        'drm',
+        '<(DEPTH)/base/base.gyp:prime'
+      ]
     },
     {
       'target_name': 'drm4_test',

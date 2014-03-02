@@ -8,13 +8,12 @@
 #include <cmath>
 
 #include "base/base.h"
+#include "base/prime.h"
 #include "number/integer.h"
 
 namespace {
-const int kDivisionLadder = 5;
-const int kDivision = 1 << kDivisionLadder;
-// Odd primes up to kDivision.
-const int kPrimes[] = {3, 5, 7, 11, 13, 17, 19, 23, 29, 31};
+const int32 kDivisionLadder = 10;
+const int32 kDivision = 1 << kDivisionLadder;
 Integer g_gcd[kDivisionLadder];  // g_gcd[i] is GCD of 2^i terms.
 }
 
@@ -23,7 +22,9 @@ void Drm4::Init() {
   for (int i = 0; i < kDivisionLadder; ++i)
     g_gcd[i].SetValue(1);
 
-  for (int prime : kPrimes) {
+  Prime primes(kDivision);
+  primes.GetNextPrime();  // Ignore 2.
+  for (int prime; (prime = primes.GetNextPrime()) > 0;) {
     for (int64 ppow = prime; ppow < kDivision; ppow *= prime) {
       int64 n = 4;
       for (int i = 1; i < kDivisionLadder; ++i, n *= 2) {
@@ -59,11 +60,10 @@ void Drm4::Compute(Integer* p, Integer* q) {
 
   Integer gcd;
   gcd.SetValue(1);
-  for (int i = 0; i < kDivisionLadder; ++i) {
-    Integer::Mul(gcd, gcd, &gcd);
+  for (int i = 0; i < kDivisionLadder; ++i)
     Integer::Mul(gcd, g_gcd[i], &gcd);
-  }
   Integer::Mul(*q, gcd, q);
+  Integer::Mul(*p, x_, p);
 }
 
 void Drm4::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
