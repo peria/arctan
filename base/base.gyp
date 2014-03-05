@@ -13,6 +13,13 @@
       'sources': [
         'modulo.cc'
       ]
+    },
+    {
+      'target_name': 'time',
+      'type': 'static_library',
+      'sources': [
+        'time.cc'
+      ]
     }
   ]
 }

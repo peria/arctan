@@ -14,7 +14,8 @@
         'search_main.cc',
       ],
       'dependencies': [
-        'search'
+        'search',
+        '<(DEPTH)/base/base.gyp:time'
       ]
     },
     {
