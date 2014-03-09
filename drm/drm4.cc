@@ -1,33 +1,37 @@
 #include "drm4.h"
 
 #include <glog/logging.h>
+#include <gflags/gflags.h>
 
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cmath>
+#include <iostream>
 
 #include "base/base.h"
 #include "base/prime.h"
 #include "number/integer.h"
 
+DEFINE_int32(level, 10, "Level of perfect tournament binary tree.");
+
 namespace {
-const int32 kDivisionLadder = 10;
-const int32 kDivision = 1 << kDivisionLadder;
-Integer g_gcd[kDivisionLadder];  // g_gcd[i] is GCD of 2^i terms.
+std::vector<Integer> g_gcd;  // g_gcd[i] is GCD of 2^i terms.
 }
 
 // static
 void Drm4::Init() {
-  for (int i = 0; i < kDivisionLadder; ++i)
+  g_gcd.resize(FLAGS_level);
+  for (int i = 0; i < FLAGS_level; ++i)
     g_gcd[i].SetValue(1);
 
+  const int32 kDivision = 1 << FLAGS_level;
   Prime primes(kDivision);
   primes.GetNextPrime();  // Ignore 2.
   for (int prime; (prime = primes.GetNextPrime()) > 0;) {
     for (int64 ppow = prime; ppow < kDivision; ppow *= prime) {
       int64 n = 4;
-      for (int i = 1; i < kDivisionLadder; ++i, n *= 2) {
+      for (int i = 1; i < FLAGS_level; ++i, n *= 2) {
         if ((n / ppow) % 2 == 1)
           Integer::Mul(g_gcd[i], prime, &g_gcd[i]);
       }
@@ -37,18 +41,18 @@ void Drm4::Init() {
 
 // static
 void Drm4::CopyGcdForTest(std::vector<Integer>* gcd) {
-  gcd->resize(kDivisionLadder);
-  for (int i = 0; i < kDivisionLadder; ++i)
+  gcd->resize(FLAGS_level);
+  for (int i = 0; i < FLAGS_level; ++i)
     (*gcd)[i].CopyFrom(g_gcd[i]);
 }
 
 Drm4::Drm4(int64 x, int64 digits)
   : Drm(x, digits),
-    m_(n_ / kDivision + 1) {
+    m_(n_ / (1 << FLAGS_level) + 1) {
   x2k_.clear();
   Integer xk;
   xk.SetValue(x_);
-  for (int i = 0; i <= kDivisionLadder; ++i) {
+  for (int i = 0; i <= FLAGS_level; ++i) {
     Integer::Mul(xk, xk, &xk);
     x2k_.push_back(xk);
   }
@@ -60,16 +64,17 @@ void Drm4::Compute(Integer* p, Integer* q) {
 
   Integer gcd;
   gcd.SetValue(1);
-  for (int i = 0; i < kDivisionLadder; ++i)
+  for (int i = 0; i < FLAGS_level; ++i)
     Integer::Mul(gcd, g_gcd[i], &gcd);
   Integer::Mul(*q, gcd, q);
   Integer::Mul(*p, x_, p);
 }
 
 void Drm4::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
+  const int32 kDivision = 1 << FLAGS_level;
   if (low == up - 1) {
-    DivisionCore(low * kDivision, kDivision, kDivisionLadder - 1, a0, b0, c0);
-    Integer::Mul(x2k_[kDivisionLadder], *a0, a0);
+    DivisionCore(low * kDivision, kDivision, FLAGS_level - 1, a0, b0, c0);
+    Integer::Mul(x2k_[FLAGS_level], *a0, a0);
     return;
   }
 
