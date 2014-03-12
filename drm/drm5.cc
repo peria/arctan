@@ -28,10 +28,11 @@ Drm5::Drm5(int64 x, int64 digits) : Drm(x, digits), m_(GetSmooth(n_)) {
   for (int64 m = m_; m > 1;) {
     if (m % 2 == 0) {
       factors.push_back(2);
+      m /= 2;
       continue;
     }
   }
-
+  
   gcd_.resize(factors.size());
   for (size_t i = 0; i < factors.size(); ++i)
     gcd_[i].SetValue(1);
@@ -40,13 +41,14 @@ Drm5::Drm5(int64 x, int64 digits) : Drm(x, digits), m_(GetSmooth(n_)) {
   primes.GetNextPrime();  // Ignore 2.
   for (int prime; (prime = primes.GetNextPrime()) > 0;) {
     for (int64 ppow = prime; ppow < m_; ppow *= prime) {
-      for (int64 i = factors.size() - 1, n = 1; i >= 0; ++i, n *= factors[i]) {
+      for (int64 i = factors.size() - 1, n = 1; i >= 0; --i) {
         int64 rem = (n / ppow) % factors[i];
         if (rem) {
           Integer pk;
           Integer::Power(prime, rem, &pk);
           Integer::Mul(gcd_[i], pk, &gcd_[i]);
         }
+        n *= factors[i];
       }
     }
   }
