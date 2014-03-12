@@ -2,6 +2,7 @@
 #include "drm/drm2.h"
 #include "drm/drm3.h"
 #include "drm/drm4.h"
+#include "drm/drm5.h"
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
@@ -41,6 +42,8 @@ Drm* ChooseAlgorithm(int64 quat, int64 digits) {
   case 4:
     Drm4::Init();
     return new Drm4(quat, digits);
+  case 5:
+    return new Drm5(quat, digits);
   }
   return NULL;
 }
@@ -73,7 +76,7 @@ void ComputePi(Real* pi) {
 bool CheckOptions() {
   if (FLAGS_digits < 0)
     return false;
-  if (FLAGS_algorithm < 1 || FLAGS_algorithm > 4)
+  if (FLAGS_algorithm < 1 || FLAGS_algorithm > 5)
     return false;
   return true;
 }

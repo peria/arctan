@@ -21,6 +21,7 @@
         'drm2',
         'drm3',
         'drm4',
+        'drm5',
         '<(DEPTH)/number/number.gyp:number'
       ],
       'sources': [
@@ -48,6 +49,15 @@
       'target_name': 'drm4',
       'type': 'static_library',
       'sources': [ 'drm4.cc' ],
+      'dependencies': [
+        'drm',
+        '<(DEPTH)/base/base.gyp:prime'
+      ]
+    },
+    {
+      'target_name': 'drm5',
+      'type': 'static_library',
+      'sources': [ 'drm5.cc' ],
       'dependencies': [
         'drm',
         '<(DEPTH)/base/base.gyp:prime'
