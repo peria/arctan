@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <map>
 
 #include "base/base.h"
 #include "base/prime.h"
@@ -52,6 +53,12 @@ Drm5::Drm5(int64 x, int64 digits) : Drm(x, digits), m_(GetSmooth(n_)) {
       }
     }
   }
+
+  xk_.resize(factors.size());
+  for (int64 i = factors.size() - 1, k = 2; i >= 0; --i) {
+    Integer::Power(x_, k, &xk_[i]);
+    k *= factors[i];
+  }
 }
 
 void Drm5::Compute(Integer* p, Integer* q) {
@@ -59,7 +66,7 @@ void Drm5::Compute(Integer* p, Integer* q) {
   Core(0, m_, 0, q, p, &c);
 
   Integer val;
-  val.SetValue(1);
+  Integer::Power(x_, m_ * 2, &val);
   for (const Integer& gcd : gcd_)
     Integer::Mul(val, gcd, &val);
   Integer::Mul(*q, val, q);
@@ -86,15 +93,11 @@ void Drm5::Core2(int64 k0, int64 width, int64 level,
                  Integer* a0, Integer* b0, Integer* c0) {
   Integer a1, b1, c1;
 
-  int64 k1 = k0 + width;
   Core(k0, width, level + 1, a0, b0, c0);
-  Core(k1, width, level + 1, &a1, &b1, &c1);
+  Core(k0 + width, width, level + 1, &a1, &b1, &c1);
 
   Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
-  // TODO(peria): Avoid repeating computing |xk|.
-  Integer xk;
-  Integer::Power(x_, width, &xk);
-  Integer::Mul(xk, *b0, b0);  // b0 = b0 * x^width
+  Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
   Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
   Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
   Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
