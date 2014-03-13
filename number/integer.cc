@@ -28,6 +28,12 @@ void Integer::CopyFrom(const Integer& n) {
   mpz_set(n_, n.n_);
 }
 
+std::string Integer::GetString() {
+  char str[1000];
+  mpz_get_str(str, 10, n_);
+  return std::string(str);
+}
+
 void Integer::Add(const Integer& a, const Integer& b, Integer* c) {
   mpz_add(c->n_, a.n_, b.n_);
 }

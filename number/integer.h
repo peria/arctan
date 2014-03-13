@@ -2,6 +2,7 @@
 #define PI_NUMBER_INTEGER_H_
 
 #include <gmp.h>
+#include <string>
 
 #include "base/base.h"
 
@@ -15,6 +16,8 @@ class Integer {
 
   void SetValue(int64 n);
   void CopyFrom(const Integer& n);
+
+  std::string GetString();
 
   const mpz_t& Mpz() const { return n_; }
   int64 Int64() const { return mpz_get_si(n_); };
