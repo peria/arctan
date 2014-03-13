@@ -91,7 +91,10 @@ void Drm5::Core2(int64 k0, int64 width, int64 level,
   Core(k1, width, level + 1, &a1, &b1, &c1);
 
   Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
-  Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
+  // TODO(peria): Avoid repeating computing |xk|.
+  Integer xk;
+  Integer::Power(x_, width, &xk);
+  Integer::Mul(xk, *b0, b0);  // b0 = b0 * x^width
   Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
   Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
   Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
