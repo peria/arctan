@@ -14,7 +14,7 @@ class Integer;
 //  A_0\      A_1\      A_2\   \          A_{n-1}\       /   ///      Q
 // where A_k, B_k, C_k are set by SetValues().
 //
-// 2, 3, or 5 terms are merged in one step, and the merging is done
+// 2 or 3 terms are merged in one step, and the merging is done
 // recursively.  Before starting computation, well balanced call-tree is
 // defined.  In a such case, n_ <= 2^i*3^j*5^k.
 class Drm5 : public Drm {
@@ -28,6 +28,9 @@ class Drm5 : public Drm {
             Integer* a, Integer* b, Integer* c);
 
   void Core2(int64 k0, int64 width, int64 level,
+             Integer* a, Integer* b, Integer* c);
+
+  void Core3(int64 k0, int64 width, int64 level,
              Integer* a, Integer* b, Integer* c);
 
   virtual void SetValues(int64 k, Integer* a, Integer* b, Integer* c);

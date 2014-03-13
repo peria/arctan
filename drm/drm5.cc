@@ -5,7 +5,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <iostream>
 #include <map>
 
 #include "base/base.h"
@@ -15,9 +14,15 @@
 namespace {
 int64 GetSmooth(const int64 n) {
   std::vector<int64> smooths;
-  const int64 lim = n * 2;
-  for (int64 p2 = 1; p2 < lim; p2 *= 2)
-    smooths.push_back(p2);
+  int64 p2 = 1;
+  while (p2 < n) {
+    int64 p3 = p2;
+    while (p3 < n)
+      p3 *= 3;
+    smooths.push_back(p3);
+    p2 *= 2;
+  }
+  smooths.push_back(p2);
 
   std::sort(smooths.begin(), smooths.end());
   return *std::lower_bound(smooths.begin(), smooths.end(), n);
@@ -26,11 +31,14 @@ int64 GetSmooth(const int64 n) {
 
 Drm5::Drm5(int64 x, int64 digits) : Drm(x, digits), m_(GetSmooth(n_)) {
   std::vector<int> factors;
+  static int kPrime[] = {2, 3};
   for (int64 m = m_; m > 1;) {
-    if (m % 2 == 0) {
-      factors.push_back(2);
-      m /= 2;
-      continue;
+    for (int p : kPrime) {
+      if (m % p == 0) {
+        factors.push_back(p);
+        m /= p;
+        break;
+      }
     }
   }
   
@@ -59,6 +67,9 @@ Drm5::Drm5(int64 x, int64 digits) : Drm(x, digits), m_(GetSmooth(n_)) {
     Integer::Power(x_, k, &xk_[i]);
     k *= factors[i];
   }
+
+  LOG(INFO) << "N: " << n_;
+  LOG(INFO) << "M: " << m_;
 }
 
 void Drm5::Compute(Integer* p, Integer* q) {
@@ -82,11 +93,12 @@ void Drm5::Core(int64 k0, int64 width, int64 level,
 
   if (width % 2 == 0) {
     Core2(k0, width / 2, level, a0, b0, c0);
-    return;
+  } else if (width % 3 == 0) {
+    Core3(k0, width / 3, level, a0, b0, c0);
+  } else {
+    // Must not reach here.
+    assert(false);
   }
-
-  // Must not reach here.
-  assert(false);
 }
 
 void Drm5::Core2(int64 k0, int64 width, int64 level,
@@ -96,6 +108,32 @@ void Drm5::Core2(int64 k0, int64 width, int64 level,
   Core(k0, width, level + 1, a0, b0, c0);
   Core(k0 + width, width, level + 1, &a1, &b1, &c1);
 
+  Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
+  Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
+  Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
+  Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+  Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
+  Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
+
+  Integer::Div(*a0, gcd_[level], a0);
+  Integer::Div(*c0, gcd_[level], c0);
+}
+
+void Drm5::Core3(int64 k0, int64 width, int64 level,
+                 Integer* a0, Integer* b0, Integer* c0) {
+  Integer a1, b1, c1;
+
+  Core(k0, width, level + 1, a0, b0, c0);
+  Core(k0 + width, width, level + 1, &a1, &b1, &c1);
+
+  Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
+  Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
+  Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
+  Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+  Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
+  Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
+
+  Core(k0 + width * 2, width, level + 1, &a1, &b1, &c1);
   Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
   Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
   Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
