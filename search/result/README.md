@@ -12,6 +12,7 @@ where x means argument of an arctangent.
 Format of the files
 -------------------
 Each line is described in following format.
+
     score  m  formula
 
 * `score` means necessary number of terms to compute 10000 digits of \pi.
