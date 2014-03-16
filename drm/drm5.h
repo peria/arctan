@@ -33,6 +33,9 @@ class Drm5 : public Drm {
   void Core3(int64 k0, int64 width, int64 level,
              Integer* a, Integer* b, Integer* c);
 
+  void Core5(int64 k0, int64 width, int64 level,
+             Integer* a, Integer* b, Integer* c);
+
   virtual void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
 
   int64 m_;

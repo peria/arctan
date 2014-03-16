@@ -17,8 +17,13 @@ int64 GetSmooth(const int64 n) {
   int64 p2 = 1;
   while (p2 < n) {
     int64 p3 = p2;
-    while (p3 < n)
+    while (p3 < n) {
+      int64 p5 = p3;
+      while (p5 < n)
+        p5 *= 5;
+      smooths.push_back(p3);
       p3 *= 3;
+    }
     smooths.push_back(p3);
     p2 *= 2;
   }
@@ -31,7 +36,7 @@ int64 GetSmooth(const int64 n) {
 
 Drm5::Drm5(int64 x, int64 digits) : Drm(x, digits), m_(GetSmooth(n_)) {
   std::vector<int> factors;
-  static int kPrime[] = {2, 3};
+  static int kPrime[] = {2, 3, 5};
   for (int64 m = m_; m > 1;) {
     for (int p : kPrime) {
       if (m % p == 0) {
@@ -95,6 +100,8 @@ void Drm5::Core(int64 k0, int64 width, int64 level,
     Core2(k0, width / 2, level, a0, b0, c0);
   } else if (width % 3 == 0) {
     Core3(k0, width / 3, level, a0, b0, c0);
+  } else if (width % 5 == 0) {
+    Core5(k0, width / 5, level, a0, b0, c0);
   } else {
     // Must not reach here.
     assert(false);
@@ -136,6 +143,54 @@ void Drm5::Core3(int64 k0, int64 width, int64 level,
   Core(k0 + width * 2, width, level + 1, &a1, &b1, &c1);
   Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
   Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
+  Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
+  Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+  Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
+  Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
+
+  Integer::Div(*a0, gcd_[level], a0);
+  Integer::Div(*c0, gcd_[level], c0);
+}
+
+void Drm5::Core5(int64 k0, int64 width, int64 level,
+                 Integer* a0, Integer* b0, Integer* c0) {
+  Integer a1, b1, c1;
+
+  Core(k0, width, level + 1, a0, b0, c0);
+  Core(k0 + width, width, level + 1, &a1, &b1, &c1);
+  Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
+  Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
+  Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
+  Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+  Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
+  Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
+
+  {
+    Integer a2, b2, c2;
+    Core(k0 + width * 3, width, level + 1, &a1, &b1, &c1);
+    Core(k0 + width * 4, width, level + 1, &a2, &b2, &c2);
+    Integer::Mul(a2, b1, &b1);  // b0 = a1 * b0
+    Integer::Mul(xk_[level], b1, &b1);  // b0 = b0 * x^width
+    Integer::Mul(b2, c1, &b2);  // b1 = b1 * c0
+    Integer::Add(b1, b2, &b2);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+    Integer::Mul(a1, a2, &a2);  // a0 = a0 * a1
+    Integer::Mul(c1, c2, &c2);  // c0 = c0 * c1
+
+    Core(k0 + width * 2, width, level + 1, &a1, &b1, &c1);
+    Integer::Mul(a2, b1, &b1);  // b0 = a1 * b0
+    Integer::Mul(xk_[level], b1, &b1);  // b0 = b0 * x^width
+    Integer::Mul(b2, c1, &b2);  // b1 = b1 * c0
+    Integer::Add(b1, b2, &b1);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
+    Integer::Mul(a1, a2, &a1);  // a0 = a0 * a1
+    Integer::Mul(c1, c2, &c1);  // c0 = c0 * c1
+  }
+
+  Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
+  {
+    Integer x2k;
+    Integer::Mul(xk_[level], xk_[level], &x2k);
+    Integer::Mul(x2k, *b0, b0);  // b0 = b0 * x^width
+  }
   Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
   Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
   Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
