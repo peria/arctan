@@ -36,7 +36,7 @@ int64 GetSmooth(const int64 n) {
 
 Drm5::Drm5(int64 x, int64 digits) : Drm(x, digits), m_(GetSmooth(n_)) {
   std::vector<int> factors;
-  static int kPrime[] = {2, 3, 5};
+  static int kPrime[] = {5, 3, 2};
   for (int64 m = m_; m > 1;) {
     for (int p : kPrime) {
       if (m % p == 0) {
@@ -46,7 +46,7 @@ Drm5::Drm5(int64 x, int64 digits) : Drm(x, digits), m_(GetSmooth(n_)) {
       }
     }
   }
-  
+
   gcd_.resize(factors.size());
   for (size_t i = 0; i < factors.size(); ++i)
     gcd_[i].SetValue(1);
@@ -96,12 +96,12 @@ void Drm5::Core(int64 k0, int64 width, int64 level,
     return;
   }
 
-  if (width % 2 == 0) {
-    Core2(k0, width / 2, level, a0, b0, c0);
+  if (width % 5 == 0) {
+    Core5(k0, width / 5, level, a0, b0, c0);
   } else if (width % 3 == 0) {
     Core3(k0, width / 3, level, a0, b0, c0);
-  } else if (width % 5 == 0) {
-    Core5(k0, width / 5, level, a0, b0, c0);
+  } else if (width % 2 == 0) {
+    Core2(k0, width / 2, level, a0, b0, c0);
   } else {
     // Must not reach here.
     assert(false);
