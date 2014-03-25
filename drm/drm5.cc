@@ -13,24 +13,20 @@
 
 namespace {
 int64 GetSmooth(const int64 n) {
-  std::vector<int64> smooths;
-  int64 p2 = 1;
-  while (p2 < n) {
-    int64 p3 = p2;
-    while (p3 < n) {
-      int64 p5 = p3;
-      while (p5 < n)
-        p5 *= 5;
-      smooths.push_back(p5);
-      p3 *= 3;
-    }
-    smooths.push_back(p3);
-    p2 *= 2;
-  }
-  smooths.push_back(p2);
+  // There must be a 5-smooth number in [n, 2n).
+  int64 ret = n * 2;
 
-  std::sort(smooths.begin(), smooths.end());
-  return *std::lower_bound(smooths.begin(), smooths.end(), n);
+  int64 p2 = 0, p3 = 0, p5 = 0;
+  for (p2 = 1; p2 < n; p2 *= 2) {
+    for (p3 = p2; p3 < n; p3 *= 3) {
+      for (p5 = p3; p5 < n; p5 *= 5) {}
+      ret = std::min(ret, p5);
+    }
+    ret = std::min(ret, p3);
+  }
+  ret = std::min(ret, p2);
+
+  return ret;
 }
 }  // namespace
 
