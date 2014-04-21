@@ -3,6 +3,7 @@
 #include "drm/drm3.h"
 #include "drm/drm4.h"
 #include "drm/drm5.h"
+#include "drm/drm6.h"
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
@@ -44,6 +45,8 @@ Drm* ChooseAlgorithm(int64 quat, int64 digits) {
     return new Drm4(quat, digits);
   case 5:
     return new Drm5(quat, digits);
+  case 6:
+    return new Drm6(quat, digits);
   }
   return NULL;
 }
