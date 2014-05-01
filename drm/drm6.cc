@@ -24,17 +24,16 @@ inline int BitCount(uint64 b) {
 }
 
 Drm6::Drm6(int64 x, int64 digits) : Drm(x, digits) {
-  // Find k*2^n <= |n_| < (k+1)*2^n, where |m_|=2^n 1<=k<2^10.
+  // Find |m_|, which fills m=2^k & a*m<=|n_|<(a+1)*m & 1<=a<2^10.
   // NOTE(peria): Parameter 'n', the level of perfoect tournaments.
-  m_ = n_ >> 9;
-  for (int i = 1; i <= 64; i *= 2)
+  m_ = n_ / ((n_ >> 9) + 1);
+  for (int i = 1; i < 64; i *= 2)
     m_ |= m_ >> i;
   ++m_;
-  DCHECK((m_ & -m_) == m_);
   if (n_ < m_)
     n_ = m_;
-  // Ignore 2 lower most levels.
-  level_ = BitCount(m_ - 1) - 2;
+  // Actually, level_ is log2(m_).
+  level_ = BitCount(m_ - 1);
 
   gcd_.resize(level_);
   for (int i = 0; i < level_; ++i)
@@ -44,7 +43,7 @@ Drm6::Drm6(int64 x, int64 digits) : Drm(x, digits) {
   primes.GetNextPrime();  // Ignore 2.
   for (int prime; (prime = primes.GetNextPrime()) > 0;) {
     for (int64 ppow = prime; ppow < m_; ppow *= prime) {
-      for (int64 i = level_ - 1, n = 1; i >= 0; --i, n *= 2) {
+      for (int64 i = level_ - 1, n = 2; i >= 0; --i, n *= 2) {
         if ((n / ppow) % 2)
           Integer::Mul(gcd_[i], prime, &gcd_[i]);
       }
@@ -56,6 +55,10 @@ Drm6::Drm6(int64 x, int64 digits) : Drm(x, digits) {
     Integer::Power(x_, k, &xk_[i]);
     k *= 2;
   }
+
+  LOG(INFO) << "N: " << n_;
+  LOG(INFO) << "M: " << m_;
+  LOG(INFO) << "Level: " << level_;
 }
 
 void Drm6::Compute(Integer* p, Integer* q) {
