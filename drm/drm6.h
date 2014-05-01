@@ -22,13 +22,10 @@ class Drm6 : public Drm {
   virtual void Compute(Integer* p, Integer* q);
 
  protected:
-  void Core(int64 k0, int64 width, int64 level,
-            Integer* a, Integer* b, Integer* c);
+  void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
+  void Core2(int64 k0, int64 width, int64 level, Integer* a, Integer* b);
 
-  void Core2(int64 k0, int64 width, int64 level,
-             Integer* a, Integer* b);
-
-  virtual void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
+  virtual void SetValues(int64 k, Integer* a, Integer* b);
 
   // Merge every |m_|=2^|levle_| terms in perfect tournament.
   int64 m_;

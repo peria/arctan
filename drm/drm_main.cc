@@ -21,7 +21,7 @@
 #include "number/real.h"
 
 DEFINE_int64(digits, 40, "Computed digits, counted after decimal point.");
-DEFINE_int32(algorithm, 1, "Using algorithm. Choose one of 1-4.");
+DEFINE_int32(algorithm, 1, "Using algorithm. Choose one of 1-6.");
 
 namespace {
 struct Term {
@@ -79,7 +79,7 @@ void ComputePi(Real* pi) {
 bool CheckOptions() {
   if (FLAGS_digits < 0)
     return false;
-  if (FLAGS_algorithm < 1 || FLAGS_algorithm > 5)
+  if (FLAGS_algorithm < 1 || FLAGS_algorithm > 6)
     return false;
   return true;
 }

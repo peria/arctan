@@ -72,16 +72,16 @@ void Drm6::Compute(Integer* p, Integer* q) {
 
 void Drm6::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
   if (low + 1 == up) {
-    Core2(low * m_, m_, level_ - 2, a0, b0);
+    Core2(low * m_, m_, 0, a0, b0);
     c0->CopyFrom(*a0);
-    Integer::Mul(*a0, xk_[level], a0);
+    Integer::Mul(*a0, xk_[0], a0);
     return;
   }
 
   Integer a1, b1, c1;
-  int64 half = width / 2;
-  Core(k0, half, a0, b0, c0);
-  Core(k0 + half, width - half, &a1, &b1, &c1);
+  int64 mid = (low + up) / 2;
+  Core(low, mid, a0, b0, c0);
+  Core(mid, up, &a1, &b1, &c1);
 
   Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
   Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
@@ -90,31 +90,31 @@ void Drm6::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
   Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
 }
 
-void Drm6::Core2(int64 k0, int64 width, int64 level,
-                 Integer* a0, Integer* b0, Integer* c0) {
-  Integer a1, b1, c1;
+void Drm6::Core2(int64 k0, int64 width, int64 level, Integer* a0, Integer* b0) {
+  if (width == 2) {
+    SetValues(k0, a0, b0);
+    return;
+  }
 
-  Core(k0, width, level + 1, a0, b0, c0);
-  Core(k0 + width, width, level + 1, &a1, &b1, &c1);
+  width /= 2;
+  Integer a1, b1;
+  Core2(k0, width, level + 1, a0, b0);
+  Core2(k0 + width, width, level + 1, &a1, &b1);
 
   Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
   Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
-  Integer::Mul(b1, *c0, &b1);  // b1 = b1 * c0
+  Integer::Mul(b1, *a0, &b1);  // b1 = b1 * c0
   Integer::Add(*b0, b1, b0);  // b0 = b0 + b1 (= b0 * a1 + b1 * c0)
   Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
-  Integer::Mul(*c0, c1, c0);  // c0 = c0 * c1
 
   Integer::Div(*a0, gcd_[level], a0);
-  Integer::Div(*c0, gcd_[level], c0);
 }
 
-void Drm6::SetValues(int64 k, Integer* a, Integer* b, Integer* c) {
-  // A_k = 2k + 1
+void Drm6::SetValues(int64 k, Integer* a, Integer* b) {
+  // A_k = (2k+1) * (2k+3)
   a->SetValue(2 * k + 1);
+  Integer::Mul(*a, 2 * k + 3, a);
 
-  // B_k = 1
-  b->SetValue(1);
-
-  // C_k = -(2k+1)
-  c->SetValue((k < n_) ? (-(2 * k + 1)) : 0);
+  // B_k = 2k+3 - (2k+1) = 2
+  b->SetValue(2);
 }
