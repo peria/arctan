@@ -22,7 +22,10 @@ class Drm6 : public Drm {
   virtual void Compute(Integer* p, Integer* q);
 
  protected:
+  // Merges tournamented trees (|low| <= id < |up|) into one.
   void Core(int64 low, int64 up, Integer* a, Integer* b, Integer* c);
+
+  // Merges 2^|level| terms as a perfect tournament.
   void Core2(int64 k0, int64 width, int64 level, Integer* a, Integer* b);
 
   virtual void SetValues(int64 k, Integer* a, Integer* b);

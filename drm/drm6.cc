@@ -12,6 +12,7 @@
 #include "number/integer.h"
 
 namespace {
+
 inline int BitCount(uint64 b) {
   static const uint64 kBit0 = 0x5555555555555555ULL;
   static const uint64 kBit1 = 0x3333333333333333ULL;
@@ -21,40 +22,42 @@ inline int BitCount(uint64 b) {
   b = (b & kBit2) + ((b >> 4) & kBit2);
   return (b * 0x0101010101010101ULL) >> (64 - 8);
 }
-}
+
+// The number of steps in a perfect tournament.
+const int kSteps = 9;
+
+}  // namespace
 
 Drm6::Drm6(int64 x, int64 digits) : Drm(x, digits) {
-  // Find |m_|, which fills m=2^k & a*m<=|n_|<(a+1)*m & 1<=a<2^10.
-  // NOTE(peria): Parameter 'n', the level of perfoect tournaments.
-  m_ = n_ / ((n_ >> 9) + 1);
-  for (int i = 1; i < 64; i *= 2)
-    m_ |= m_ >> i;
-  ++m_;
-  if (n_ < m_)
-    n_ = m_;
-  // Actually, level_ is log2(m_).
+  int64 width = n_ >> kSteps;
+
+  if (width == 0) {
+    for (m_ = 2; m_ < n_; m_ *= 2) {}
+  } else {
+    for (int k = 1; k < 64; k *= 2)
+      width |= width >> k;
+    m_ = width + 1;
+  }
   level_ = BitCount(m_ - 1);
+  DCHECK(level_);
 
-  gcd_.resize(level_);
-  for (int i = 0; i < level_; ++i)
+  gcd_.resize(level_ + 1);
+  for (int i = 0; i <= level_; ++i)
     gcd_[i].SetValue(1);
-
   Prime primes(m_);
   primes.GetNextPrime();  // Ignore 2.
   for (int prime; (prime = primes.GetNextPrime()) > 0;) {
     for (int64 ppow = prime; ppow < m_; ppow *= prime) {
-      for (int64 i = level_ - 1, n = 2; i >= 0; --i, n *= 2) {
+      for (int64 i = 1, n = 2; i <= level_; ++i, n *= 2) {
         if ((n / ppow) % 2)
           Integer::Mul(gcd_[i], prime, &gcd_[i]);
       }
     }
   }
 
-  xk_.resize(level_);
-  for (int64 i = level_ - 1, k = 4; i >= 0; --i) {
+  xk_.resize(level_ + 1);
+  for (int64 i = 1, k = 4; i <= level_; ++i, k *= 2)
     Integer::Power(x_, k, &xk_[i]);
-    k *= 2;
-  }
 
   LOG(INFO) << "N: " << n_;
   LOG(INFO) << "M: " << m_;
@@ -67,7 +70,7 @@ void Drm6::Compute(Integer* p, Integer* q) {
 
   Integer gcd;
   gcd.SetValue(1);
-  for (int i = 0; i < level_; ++i)
+  for (int i = 0; i <= level_; ++i)
     Integer::Mul(gcd, gcd_[i], &gcd);
   Integer::Mul(*q, gcd, q);
   Integer::Mul(*p, x_, p);
@@ -75,9 +78,9 @@ void Drm6::Compute(Integer* p, Integer* q) {
 
 void Drm6::Core(int64 low, int64 up, Integer* a0, Integer* b0, Integer* c0) {
   if (low + 1 == up) {
-    Core2(low * m_, m_, 0, a0, b0);
+    Core2(low * m_, m_, level_, a0, b0);
     c0->CopyFrom(*a0);
-    Integer::Mul(*a0, xk_[0], a0);
+    Integer::Mul(*a0, xk_[level_], a0);
     return;
   }
 
@@ -101,8 +104,8 @@ void Drm6::Core2(int64 k0, int64 width, int64 level, Integer* a0, Integer* b0) {
 
   width /= 2;
   Integer a1, b1;
-  Core2(k0, width, level + 1, a0, b0);
-  Core2(k0 + width, width, level + 1, &a1, &b1);
+  Core2(k0, width, level - 1, a0, b0);
+  Core2(k0 + width, width, level - 1, &a1, &b1);
 
   Integer::Mul(a1, *b0, b0);  // b0 = a1 * b0
   Integer::Mul(xk_[level], *b0, b0);  // b0 = b0 * x^width
@@ -111,6 +114,10 @@ void Drm6::Core2(int64 k0, int64 width, int64 level, Integer* a0, Integer* b0) {
   Integer::Mul(*a0, a1, a0);  // a0 = a0 * a1
 
   Integer::Div(*a0, gcd_[level], a0);
+
+  VLOG(1) << "Level: " << level << " (N: " << (1 << level) << ")";
+  VLOG(1) << "A: " << a0->GetString() << " * " << gcd_[level].GetString();
+  VLOG(1) << "B: " << b0->GetString();
 }
 
 void Drm6::SetValues(int64 k, Integer* a, Integer* b) {
