@@ -109,5 +109,9 @@ int main(int argc, char* argv[]) {
   mpf_out_str(stdout, 10, FLAGS_digits, pi.Mpf());
   std::puts("");
 
+  clock_t out = clock();
+  std::fprintf(stderr, "Output done in %6.3fsec\n",
+               static_cast<double>(out - end) / CLOCKS_PER_SEC);
+
   return 0;
 }
