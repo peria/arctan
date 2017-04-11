@@ -1,7 +1,7 @@
 #ifndef SEARCH_SEARCH_H_
 #define SEARCH_SEARCH_H_
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "base/base.h"
@@ -34,8 +34,7 @@ class Search {
 
   // Returns true if |elem| is usable in the condition where other parameters
   // figure.
-  bool IsUsable(const Element& elem, const std::vector<int32>& primes,
-                int32 num_primes);
+  bool IsUsable(const Element& elem, const std::vector<int32>& primes);
 
   // Returns false if any element of coeffs is 0.
   bool GetCoefficients(const Matrix& matrix, std::vector<int32>* coeffs);
@@ -53,7 +52,7 @@ class Search {
 struct Element {
   int x;
   double value;
-  std::map<int, int> factors;  // factors[base] = exponent
+  std::unordered_map<int, int> factors;  // factors[base] = exponent
 };
 
 // Term describes a term of a formula, |coef|*atan(1/quot).

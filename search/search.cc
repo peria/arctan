@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cmath>
 #include <map>
+#include <unordered_set>
 #include <vector>
 
 #include "base/base.h"
@@ -49,18 +50,22 @@ Search::Search(int64 p_max, int64 x_max) : p_max_(p_max), x_max_(x_max) {
 }
 
 void Search::Sieve() {
+  std::vector<int32> usable_primes;
   // Sieve using |primes_|.
   for (int prime : primes_) {
     int64 root = Modulo::SquareRoot(prime - 1, prime);
+    std::unordered_set<int64> xs;
     for (int64 pk = prime; root <= x_max_ || (pk - root <= x_max_);
          pk *= prime) {
       for (int64 x = root; x < x_max_; x += pk) {
         elements_[x].factors[prime] = elements_[x].factors[prime] + 1;
         elements_[x].value *= prime;
+        xs.insert(x);
       }
       for (int64 x = pk - root; x < x_max_; x += pk) {
         elements_[x].factors[prime] = elements_[x].factors[prime] + 1;
         elements_[x].value *= prime;
+        xs.insert(x);
       }
 
       int64 s = (root * root + 1) / pk;
@@ -68,23 +73,25 @@ void Search::Sieve() {
       root += t * pk;
       root %= (pk * prime);
     }
+    if (xs.size() >= 2) {
+      usable_primes.push_back(prime);
+    } else if (xs.size() == 1) {
+      elements_[*xs.begin()].value = 0;  // unusable x
+    }
   }
+  LOG(INFO) << "Reduce primes from " << primes_.size() << " to " << usable_primes.size() << ".";
+  primes_ = usable_primes;
 
   for (int64 x = 1; x < x_max_; ++x) {
-    int64 norm = x * x + 1;
-    if (norm > elements_[x].value * p_max_) {
+    if (elements_[x].value == 0)
+      continue;
+
+    if (x * x + 1 != elements_[x].value) {
       // Set a sign to figure this element is not smooth.
       elements_[x].value = 0;
       continue;
     }
 
-    int64 value = elements_[x].value;
-    // If (x^2+1)/value is less than p_max, it should be smooth.
-    if (norm > value) {
-      elements_[x].factors[norm / value] = 1;
-      elements_[x].value = norm;
-      value = 1;
-    }
     // Set signs of coefficients.
     for (auto factor : elements_[x].factors) {
       const int32 p = factor.first;
@@ -110,7 +117,7 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
 
     std::vector<Element*> elements;
     for (size_t x = 1; x < elements_.size(); ++x) {
-      if (IsUsable(elements_[x], usable_primes, num_primes))
+      if (IsUsable(elements_[x], usable_primes))
         elements.push_back(&elements_[x]);
     }
 
@@ -120,10 +127,10 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
     do {
       Matrix matrix(num_terms, Row(num_primes, 0));
       for (int i = 0; i < num_terms; ++i) {
-        const std::map<int, int>& factors = elements[i]->factors;
+        const std::unordered_map<int, int>& factors = elements[i]->factors;
         for (int j = 0; j < num_primes; ++j) {
           const int32 p = usable_primes[j];
-          std::map<int, int>::const_iterator itr = factors.find(p);
+          auto itr = factors.find(p);
           matrix[i][j] = (itr == factors.end()) ? 0 : itr->second;
         }
       }
@@ -172,6 +179,12 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
   } while (std::next_combination(primes_.begin(),
                                  primes_.begin() + num_primes,
                                  primes_.end()));
+
+  std::sort(formulae->begin(), formulae->end(),
+            [](const Formula& a, const Formula& b) -> bool {
+              return a.n < b.n;
+            });
+  LOG(INFO) << "Found " << formulae->size() << " formulae";
 }
 
 bool Search::GetCoefficients(const Matrix& matrix,
@@ -225,11 +238,8 @@ void Search::Debug(std::vector<Element>* elements) {
 }
 
 bool Search::IsUsable(const Element& elem,
-                      const std::vector<int32>& primes,
-                      int32 num_primes) {
+                      const std::vector<int32>& primes) {
   if (elem.value < 1)
-    return false;
-  if (elem.factors.size() > static_cast<size_t>(num_primes))
     return false;
   for (auto factor : elem.factors) {
     if (std::find(primes.begin(), primes.end(), factor.first) == primes.end())
