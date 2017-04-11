@@ -19,7 +19,7 @@ class Integer;
 class Drm6 : public Drm {
  public:
   Drm6(int64 x, int64 n);
-  virtual void Compute(Integer* p, Integer* q);
+  void Compute(Integer* p, Integer* q);
 
  protected:
   // Merges tournamented trees (|low| <= id < |up|) into one.
@@ -28,7 +28,7 @@ class Drm6 : public Drm {
   // Merges 2^|level| terms as a perfect tournament.
   void Core2(int64 k0, int64 width, int64 level, Integer* a, Integer* b);
 
-  virtual void SetValues(int64 k, Integer* a, Integer* b);
+  void SetValues(int64 k, Integer* a, Integer* b);
 
   // Merge every |m_|=2^|levle_| terms in perfect tournament.
   int64 m_;

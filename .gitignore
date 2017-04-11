@@ -3,5 +3,6 @@
 *.mk
 *.Makefile
 *.out
+local_*
 Makefile
 out/

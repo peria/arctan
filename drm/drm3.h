@@ -23,10 +23,10 @@ class Drm3 : public Drm {
   virtual void Compute(Integer* p, Integer* q);
 
  private:
-  virtual void Core(int64 low, int64 up, FactoredInteger* a, Integer* b,
-		    FactoredInteger* c);
-  virtual void SetValues(int64 k, FactoredInteger* a, Integer* b,
-			 FactoredInteger* c);
+  void Core(int64 low, int64 up, FactoredInteger* a, Integer* b,
+            FactoredInteger* c);
+  void SetValues(int64 k, FactoredInteger* a, Integer* b,
+                 FactoredInteger* c);
 };
 
 #endif  // DRM_DRM2_H_

@@ -6,8 +6,8 @@
 
 #include "base/base.h"
 
-class Element;
-class Formula;
+struct Element;
+struct Formula;
 typedef std::vector<int32> Row;
 typedef std::vector<Row> Matrix;
 

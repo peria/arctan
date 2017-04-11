@@ -20,7 +20,7 @@ class Integer;
 class Drm5 : public Drm {
  public:
   Drm5(int64 x, int64 n);
-  virtual void Compute(Integer* p, Integer* q);
+  void Compute(Integer* p, Integer* q);
 
  protected:
   // Entrance of one step.
@@ -36,7 +36,7 @@ class Drm5 : public Drm {
   void Core5(int64 k0, int64 width, int64 level,
              Integer* a, Integer* b, Integer* c);
 
-  virtual void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
+  void SetValues(int64 k, Integer* a, Integer* b, Integer* c);
 
   int64 m_;
   std::vector<Integer> gcd_;
