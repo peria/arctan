@@ -2,6 +2,7 @@
 #define SEARCH_SEARCH_H_
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "base/base.h"

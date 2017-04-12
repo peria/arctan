@@ -109,6 +109,12 @@ const double kEps = 1.0e-5;
 void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
   const int num_primes = num_terms - 1;
 
+  std::vector<Element*> usable_elements;
+  for (auto& elem : elements_) {
+    if (elem.value > 1 && elem.factors.size() <= static_cast<size_t>(num_primes))
+      usable_elements.push_back(&elem);
+  }
+
   std::sort(primes_.begin(), primes_.end());
   do {
     std::vector<int32> usable_primes;
@@ -116,9 +122,9 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
       usable_primes.push_back(primes_[i]);
 
     std::vector<Element*> elements;
-    for (size_t x = 1; x < elements_.size(); ++x) {
-      if (IsUsable(elements_[x], usable_primes))
-        elements.push_back(&elements_[x]);
+    for (auto* elem : usable_elements) {
+      if (IsUsable(*elem, usable_primes))
+        elements.push_back(elem);
     }
 
     if (elements.size() < static_cast<size_t>(num_terms))
@@ -239,10 +245,9 @@ void Search::Debug(std::vector<Element>* elements) {
 
 bool Search::IsUsable(const Element& elem,
                       const std::vector<int32>& primes) {
-  if (elem.value < 1)
-    return false;
   for (auto factor : elem.factors) {
-    if (std::find(primes.begin(), primes.end(), factor.first) == primes.end())
+    auto itr = std::find(primes.begin(), primes.end(), factor.first);
+    if (itr == primes.end())
       return false;
   }
   return true;
