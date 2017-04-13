@@ -207,36 +207,48 @@ bool Search::GetCoefficients(const Matrix& matrix,
   return true;
 }
 
-int32 Search::Determ(Matrix& matrix) {
+namespace {
+
+const int kUndefined = 0x7fffffff;
+
+inline int32 BitToIndex(int32 b) {
+  switch (b) {
+    case 1 << 0: return 0;
+    case 1 << 1: return 1;
+    case 1 << 2: return 2;
+    case 1 << 3: return 3;
+    case 1 << 4: return 4;
+    case 1 << 5: return 5;
+    case 1 << 6: return 6;
+    case 1 << 7: return 7;
+  }
+  return -1;
+}
+
+int32 DetRecursive(const Matrix& matrix, int32 row, int32 bit, std::vector<int32>& dp) {
+  if (dp[bit] != kUndefined)
+    return dp[bit];
+
+  int32 det = 0;
+  int32 sign = 1;
+  for (int32 id = bit; id; id &= id - 1) {
+    int32 b = id & (-id);
+    det += sign * matrix[row][BitToIndex(b)] * DetRecursive(matrix, row + 1, bit ^ b, dp);
+    sign = -sign;
+  }
+  dp[bit] = det;
+  return det;
+}
+
+}  // namespace
+
+int32 Search::Determ(const Matrix& matrix) const {
   const int n = matrix.size();
 
-  int64 ret = 1;
-  int64 mul = 1;
-  for (int p = 0; p < n; ++p) {
-    int i = p;
-    for (i = p; i < n && matrix[i][p] == 0; ++i) {}
-    if (i == n)
-      return 0;
-    if (i != p) {
-      std::swap(matrix[i], matrix[p]);
-      ret = -ret;
-    }
-
-    int32 piv = matrix[p][p];
-    for (int j = i + 1; j < n; ++j) {
-      if (matrix[j][p] == 0)
-        continue;
-      int32 mat = matrix[j][p];
-      for (int k = p; k < n; ++k)
-        matrix[j][k] = matrix[j][k] * piv - mat * matrix[p][k];
-      mul *= piv;
-    }
-  }
-
+  std::vector<int32> dp(1 << n, kUndefined);
   for (int i = 0; i < n; ++i)
-    ret *= matrix[i][i];
-
-  return ret / mul;
+    dp[1 << i] = matrix[n - 1][i];
+  return DetRecursive(matrix, 0, (1 << n) - 1, dp);
 }
 
 void Search::Debug(std::vector<Element>* elements) {

@@ -41,7 +41,7 @@ class Search {
   bool GetCoefficients(const Matrix& matrix, std::vector<int32>* coeffs);
 
   // Compute determinant of a square matrix.  |matrix| is broken.
-  int32 Determ(Matrix& matrix);
+  int32 Determ(const Matrix& matrix) const;
 
   std::vector<Element> elements_;
 
