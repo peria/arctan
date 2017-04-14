@@ -25,17 +25,10 @@ class Search {
 
   void FindFormulae(int num_terms, std::vector<Formula>* formulae);
 
-  // Copys sieved data.
-  void Debug(std::vector<Element>* elements);
-
  private:
   // Add exponent of prime for x = (r + pk*i), because (x^2+1) % prime == 0
   // for such x.
   void SieveInternal(int64 root, int64 pk, int prime);
-
-  // Returns true if |elem| is usable in the condition where other parameters
-  // figure.
-  bool IsUsable(const Element& elem, const std::vector<int32>& primes);
 
   // Returns false if any element of coeffs is 0.
   bool GetCoefficients(const Matrix& matrix, std::vector<int32>* coeffs);
@@ -51,9 +44,13 @@ class Search {
 };
 
 struct Element {
-  int x;
-  double value;
-  std::unordered_map<int, int> factors;  // factors[base] = exponent
+  // Returns true if |elem| is usable in the condition where other parameters
+  // figure.
+  bool IsSmooth(const std::vector<int32>& primes) const;
+
+  int32 x;
+  int64 norm;
+  std::unordered_map<int32, int32> factors;  // factors[base] = exponent
 };
 
 // Term describes a term of a formula, |coef|*atan(1/quot).

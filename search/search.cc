@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <map>
 #include <unordered_set>
@@ -15,6 +16,7 @@
 #include "base/prime.h"
 
 namespace {
+
 const int32 kNumDigits = 10000;
 
 int32 GcdOfAll(const std::vector<int32>& vs) {
@@ -38,11 +40,11 @@ Search::Search(int64 p_max, int64 x_max) : p_max_(p_max), x_max_(x_max) {
   elements_.resize(x_max_ + 1);
   for (int i = 0; i <= x_max_; ++i) {
     elements_[i].x = i;
-    elements_[i].value = 1 + (i & 1);
+    // if |x| is odd, x^2+1 is even.
+    elements_[i].norm = 1 + (i & 1);
   }
 
   Prime all_primes(p_max_);
-  primes_.clear();
   for (int32 p; (p = all_primes.GetNextPrime()) > 0;) {
     if (p % 4 == 1)
       primes_.push_back(p);
@@ -50,22 +52,17 @@ Search::Search(int64 p_max, int64 x_max) : p_max_(p_max), x_max_(x_max) {
 }
 
 void Search::Sieve() {
-  std::vector<int32> usable_primes;
-  // Sieve using |primes_|.
   for (int prime : primes_) {
     int64 root = Modulo::SquareRoot(prime - 1, prime);
-    std::unordered_set<int64> xs;
     for (int64 pk = prime; root <= x_max_ || (pk - root <= x_max_);
          pk *= prime) {
       for (int64 x = root; x < x_max_; x += pk) {
         elements_[x].factors[prime] = elements_[x].factors[prime] + 1;
-        elements_[x].value *= prime;
-        xs.insert(x);
+        elements_[x].norm *= prime;
       }
       for (int64 x = pk - root; x < x_max_; x += pk) {
         elements_[x].factors[prime] = elements_[x].factors[prime] + 1;
-        elements_[x].value *= prime;
-        xs.insert(x);
+        elements_[x].norm *= prime;
       }
 
       int64 s = (root * root + 1) / pk;
@@ -73,22 +70,11 @@ void Search::Sieve() {
       root += t * pk;
       root %= (pk * prime);
     }
-    if (xs.size() >= 2) {
-      usable_primes.push_back(prime);
-    } else if (xs.size() == 1) {
-      elements_[*xs.begin()].value = 0;  // unusable x
-    }
   }
-  LOG(INFO) << "Reduce primes from " << primes_.size() << " to " << usable_primes.size() << ".";
-  primes_ = usable_primes;
 
   for (int64 x = 1; x < x_max_; ++x) {
-    if (elements_[x].value == 0)
-      continue;
-
-    if (x * x + 1 != elements_[x].value) {
-      // Set a sign to figure this element is not smooth.
-      elements_[x].value = 0;
+    if (x * x + 1 > elements_[x].norm) {
+      elements_[x].norm = 0;
       continue;
     }
 
@@ -106,25 +92,26 @@ const double kPi4 = std::atan(1.0);
 const double kEps = 1.0e-5;
 }
 
-void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
-  const int num_primes = num_terms - 1;
+void Search::FindFormulae(int32 num_terms, std::vector<Formula>* formulae) {
+  const int32 num_primes = num_terms - 1;
 
-  std::vector<Element*> usable_elements;
+  std::vector<Element> usable_elements;
   for (auto& elem : elements_) {
-    if (elem.value > 1 && elem.factors.size() <= static_cast<size_t>(num_primes))
-      usable_elements.push_back(&elem);
+    if (elem.norm > 0 && elem.factors.size() <= static_cast<size_t>(num_primes))
+      usable_elements.push_back(elem);
   }
+  LOG(INFO) << usable_elements.size() << " / " << elements_.size() << " are usable";
 
   std::sort(primes_.begin(), primes_.end());
   do {
-    std::vector<int32> usable_primes;
+    std::vector<int32> used_primes;
     for (int i = 0; i < num_primes; ++i)
-      usable_primes.push_back(primes_[i]);
+      used_primes.push_back(primes_[i]);
 
     std::vector<Element*> elements;
-    for (auto* elem : usable_elements) {
-      if (IsUsable(*elem, usable_primes))
-        elements.push_back(elem);
+    for (auto& elem : usable_elements) {
+      if (elem.IsSmooth(used_primes))
+        elements.push_back(&elem);
     }
 
     if (elements.size() < static_cast<size_t>(num_terms))
@@ -135,7 +122,7 @@ void Search::FindFormulae(int num_terms, std::vector<Formula>* formulae) {
       for (int i = 0; i < num_terms; ++i) {
         const std::unordered_map<int, int>& factors = elements[i]->factors;
         for (int j = 0; j < num_primes; ++j) {
-          const int32 p = usable_primes[j];
+          const int32 p = used_primes[j];
           auto itr = factors.find(p);
           matrix[i][j] = (itr == factors.end()) ? 0 : itr->second;
         }
@@ -251,13 +238,8 @@ int32 Search::Determ(const Matrix& matrix) const {
   return DetRecursive(matrix, 0, (1 << n) - 1, dp);
 }
 
-void Search::Debug(std::vector<Element>* elements) {
-  *elements = elements_;
-}
-
-bool Search::IsUsable(const Element& elem,
-                      const std::vector<int32>& primes) {
-  for (auto factor : elem.factors) {
+bool Element::IsSmooth(const std::vector<int32>& primes) const {
+  for (auto factor : factors) {
     auto itr = std::find(primes.begin(), primes.end(), factor.first);
     if (itr == primes.end())
       return false;
