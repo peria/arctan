@@ -17,8 +17,6 @@
 
 namespace {
 
-const int32 kNumDigits = 10000;
-
 int32 GcdOfAll(const std::vector<int32>& vs) {
   if (vs.empty())
     return 0;
@@ -36,14 +34,11 @@ int32 GcdOfAll(const std::vector<int32>& vs) {
 
 }  // namespace
 
-Search::Search(int64 p_max, int64 x_max) : p_max_(p_max), x_max_(x_max) {
-  elements_.resize(x_max_ + 1);
-  for (int i = 0; i <= x_max_; ++i) {
-    elements_[i].x = i;
-    // if |x| is odd, x^2+1 is even.
-    elements_[i].norm = 1 + (i & 1);
-  }
+const int32 Search::kNumDigits = 10000;
+const int32 Search::kSieveWidth = 1000;
 
+Search::Search(int64 p_max, int64 x_max) : p_max_(p_max), x_max_(x_max) {
+  CHECK_EQ(0, x_max_ % kSieveWidth);
   Prime all_primes(p_max_);
   for (int32 p; (p = all_primes.GetNextPrime()) > 0;) {
     if (p % 4 == 1)
@@ -52,18 +47,22 @@ Search::Search(int64 p_max, int64 x_max) : p_max_(p_max), x_max_(x_max) {
 }
 
 void Search::Sieve() {
-  for (int prime : primes_) {
+  struct Factor {
+    int64 x;
+    int64 pk;
+    int32 prime;
+  };
+
+  // Initialize factors, which are like sieving indexes.
+  std::vector<Factor> factors;
+  for (int32 prime : primes_) {
     int64 root = Modulo::SquareRoot(prime - 1, prime);
     for (int64 pk = prime; root <= x_max_ || (pk - root <= x_max_);
          pk *= prime) {
-      for (int64 x = root; x < x_max_; x += pk) {
-        elements_[x].factors[prime] = elements_[x].factors[prime] + 1;
-        elements_[x].norm *= prime;
-      }
-      for (int64 x = pk - root; x < x_max_; x += pk) {
-        elements_[x].factors[prime] = elements_[x].factors[prime] + 1;
-        elements_[x].norm *= prime;
-      }
+      if (root <= x_max_)
+        factors.push_back({root, pk, prime});
+      if (pk - root <= x_max_)
+        factors.push_back({pk - root, pk, prime});
 
       int64 s = (root * root + 1) / pk;
       int64 t = (prime - s * Modulo::Inverse(2 * root, prime) % prime) % prime;
@@ -71,18 +70,50 @@ void Search::Sieve() {
       root %= (pk * prime);
     }
   }
+  LOG(INFO) << "Using " << primes_.size() << " primes and " << factors.size() << " factors";
 
-  for (int64 x = 1; x < x_max_; ++x) {
-    if (x * x + 1 > elements_[x].norm) {
-      elements_[x].norm = 0;
-      continue;
+  // Range-based sieve.
+  std::vector<Element> elems(kSieveWidth);
+  int64 prev_norm = 0;
+  for (int64 x_base = 0; x_base < x_max_; x_base += kSieveWidth) {
+    // initialize |elems|. |Element.x| is not used in sieve.
+    for (int64 i = 0; i < kSieveWidth; ++i) {
+      Element& elem = elems[i];
+      elem.factors.clear();
+      elem.norm = 1 + (i & 1);
     }
 
+    // Core part of the sieve
+    for (Factor& factor : factors) {
+      int32 p = factor.prime;
+      int64 x = factor.x;
+      while (x < kSieveWidth) {
+        elems[x].factors[p] = elems[x].factors[p] + 1;
+        elems[x].norm *= p;
+        x += factor.pk;
+      }
+      factor.x = x - kSieveWidth;
+    }
+
+    for (int64 i = 0; i < kSieveWidth; ++i) {
+      Element& elem = elems[i];
+      int64 x = x_base + i;
+      int64 norm = x * x + 1;
+      if (elem.norm < norm)
+        continue;
+      // |elem| passed the sieve.
+      elem.x = x;
+      elements_.push_back(elem);
+    }
+  }
+  LOG(INFO) << elements_.size() << " / " << x_max_ << " are smooth";
+
+  for (Element& elem : elements_) {
     // Set signs of coefficients.
-    for (auto factor : elements_[x].factors) {
+    for (auto factor : elem.factors) {
       const int32 p = factor.first;
-      if (x % p > p / 2)
-        elements_[x].factors[p] = -elements_[x].factors[p];
+      if (elem.x % p > p / 2)
+        elem.factors[p] = -elem.factors[p];
     }
   }
 }
@@ -97,10 +128,11 @@ void Search::FindFormulae(int32 num_terms, std::vector<Formula>* formulae) {
 
   std::vector<Element> usable_elements;
   for (auto& elem : elements_) {
-    if (elem.norm > 0 && elem.factors.size() <= static_cast<size_t>(num_primes))
+    if (elem.factors.size() <= static_cast<size_t>(num_primes))
       usable_elements.push_back(elem);
   }
-  LOG(INFO) << usable_elements.size() << " / " << elements_.size() << " are usable";
+  LOG(INFO) << usable_elements.size() << " / " << elements_.size() << " are usable for "
+            << num_terms << " terms relations";
 
   std::sort(primes_.begin(), primes_.end());
   do {

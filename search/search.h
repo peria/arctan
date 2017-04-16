@@ -41,6 +41,9 @@ class Search {
   const int64 p_max_;
   const int64 x_max_;
   std::vector<int32> primes_;
+
+  static const int32 kNumDigits;
+  static const int32 kSieveWidth;
 };
 
 struct Element {
