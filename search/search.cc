@@ -74,7 +74,6 @@ void Search::Sieve() {
 
   // Range-based sieve.
   std::vector<Element> elems(kSieveWidth);
-  int64 prev_norm = 0;
   for (int64 x_base = 0; x_base < x_max_; x_base += kSieveWidth) {
     // initialize |elems|. |Element.x| is not used in sieve.
     for (int64 i = 0; i < kSieveWidth; ++i) {
